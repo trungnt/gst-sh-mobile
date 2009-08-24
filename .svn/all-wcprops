@@ -1,0 +1,113 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/project_C848P003/!svn/ver/160/trunk/gst-sh-mobile
+END
+gstshvideoplugin.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/project_C848P003/!svn/ver/152/trunk/gst-sh-mobile/gstshvideoplugin.c
+END
+gstshvideodec.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/project_C848P003/!svn/ver/154/trunk/gst-sh-mobile/gstshvideodec.h
+END
+gstshioutils.c
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/project_C848P003/!svn/ver/162/trunk/gst-sh-mobile/gstshioutils.c
+END
+gstshvideosink.c
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/project_C848P003/!svn/ver/162/trunk/gst-sh-mobile/gstshvideosink.c
+END
+AUTHORS
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/project_C848P003/!svn/ver/126/trunk/gst-sh-mobile/AUTHORS
+END
+gstshvideoenc.c
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/project_C848P003/!svn/ver/162/trunk/gst-sh-mobile/gstshvideoenc.c
+END
+ChangeLog
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/project_C848P003/!svn/ver/157/trunk/gst-sh-mobile/ChangeLog
+END
+gstshioutils.h
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/project_C848P003/!svn/ver/155/trunk/gst-sh-mobile/gstshioutils.h
+END
+gstshvideobuffer.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/project_C848P003/!svn/ver/154/trunk/gst-sh-mobile/gstshvideobuffer.c
+END
+gstshvideosink.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/project_C848P003/!svn/ver/154/trunk/gst-sh-mobile/gstshvideosink.h
+END
+gstshvideoenc.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/project_C848P003/!svn/ver/162/trunk/gst-sh-mobile/gstshvideoenc.h
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/project_C848P003/!svn/ver/128/trunk/gst-sh-mobile/README
+END
+gstshvideobuffer.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/project_C848P003/!svn/ver/154/trunk/gst-sh-mobile/gstshvideobuffer.h
+END
+configure.ac
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/project_C848P003/!svn/ver/151/trunk/gst-sh-mobile/configure.ac
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/project_C848P003/!svn/ver/154/trunk/gst-sh-mobile/Makefile.am
+END
+autogen.sh
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/project_C848P003/!svn/ver/151/trunk/gst-sh-mobile/autogen.sh
+END
+NEWS
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/NEWS
+END
+gstshvideodec.c
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/project_C848P003/!svn/ver/154/trunk/gst-sh-mobile/gstshvideodec.c
+END
