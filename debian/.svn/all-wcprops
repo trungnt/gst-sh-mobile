@@ -1,0 +1,155 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/project_C848P003/!svn/ver/158/trunk/gst-sh-mobile/debian
+END
+menu.ex
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/menu.ex
+END
+init.d.lsb.ex
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/init.d.lsb.ex
+END
+control
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/control
+END
+watch.ex
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/watch.ex
+END
+emacsen-remove.ex
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/emacsen-remove.ex
+END
+manpage.xml.ex
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/manpage.xml.ex
+END
+manpage.1.ex
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/manpage.1.ex
+END
+compat
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/compat
+END
+manpage.sgml.ex
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/manpage.sgml.ex
+END
+emacsen-startup.ex
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/emacsen-startup.ex
+END
+changelog
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/project_C848P003/!svn/ver/158/trunk/gst-sh-mobile/debian/changelog
+END
+docs
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/docs
+END
+rules
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/rules
+END
+emacsen-install.ex
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/emacsen-install.ex
+END
+postinst.ex
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/postinst.ex
+END
+cron.d.ex
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/cron.d.ex
+END
+postrm.ex
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/postrm.ex
+END
+preinst.ex
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/preinst.ex
+END
+init.d.ex
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/init.d.ex
+END
+prerm.ex
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/prerm.ex
+END
+gst-sh-mobile.doc-base.EX
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/gst-sh-mobile.doc-base.EX
+END
+dirs
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/dirs
+END
+gst-sh-mobile.default.ex
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/gst-sh-mobile.default.ex
+END
+copyright
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/copyright
+END
+README.Debian
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/project_C848P003/!svn/ver/98/trunk/gst-sh-mobile/debian/README.Debian
+END
