@@ -1,3 +1,10 @@
+/*! \mainpage gst-sh-mobile - GStreamer plugin for SuperH
+
+This plugin includes following elements:
+- \subpage dec "gst-sh-mobile-dec - MPEG4/H264 HW decoder"
+- \subpage enc "gst-sh-mobile-enc - MPEG4/H264 HW encoder"
+- \subpage sink "gst-sh-mobile-sink - Image sink"
+*/
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
