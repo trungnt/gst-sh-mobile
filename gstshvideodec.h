@@ -71,12 +71,6 @@ struct _Gstshvideodec
 
   GstBuffer* buffer;
   guint32 buffer_size;
-  GstClockTime buffer_timestamp;
-  gint buffer_frames;
-
-  GstClockTime decode_timestamp;
-  gint decode_frames;  
-  gint decoded;
 
   pthread_t dec_thread;
   pthread_mutex_t mutex;
