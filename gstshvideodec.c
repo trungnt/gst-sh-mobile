@@ -1,6 +1,50 @@
 /**
- * gst-sh-mobile-dec
+ * \page dec "gst-sh-mobile-dec"
+ * gst-sh-mobile-dec - decodes MPEG4/H264 video stream to raw YUV image data 
+ * on SuperH environment using libshcodecs HW codec.
  *
+ * \section dec-examples Example launch lines
+ * \code
+ * gst-launch filesrc location=test.m4v ! video/mpeg, width=320, height=240,
+ * framerate=30/1, mpegversion=4 ! gst-sh-mobile-dec ! filesink location=test.raw
+ * \endcode
+ * In this pipeline we use filesrc element for reading the source file, 
+ * which is a MPEG4 video elementary stream. After filesrc we add static caps 
+ * as the the filesrc doesn't do caps negotiation and the decoder requires them. 
+ * The last element in the pipeline is filesink, which writes the output YUV-data
+ * into a file.
+ *
+ * \code
+ * gst-launch filesrc location=test.avi ! avidemux name=demux demux.audio_00 ! 
+ * queue ! decodebin ! audioconvert ! audioresample ! autoaudiosink 
+ * demux.video_00 ! queue ! gst-sh-mobile-dec ! gst-sh-mobile-sink
+ * \endcode
+ * Again filesrc element is used for reading the file, which this time is an AVI
+ * wrapped video containing both audio and video streams. avidemux element is 
+ * used for stripping the avi container. avidemux has two src-pads, which are 
+ * named “demux” using a property. both of the avidemux src pads are first
+ * connecte to queue elements, which takes care of the buffering of the data in
+ * the pipeline.
+ *  
+ * the audio stream is then connected to the the decodebin element, which detects
+ * the stream format and does the decoding. audioconvert and audioresample 
+ * elements are used for transforming the data in suitable format for for 
+ * playback. the last element in the audio pipeline is autoaudiosink, which
+ * automaticly detects and connects the correct audio sink for playback. this
+ * audio pipeline composition is very standard in gstreamer programming.
+ * 
+ * the video pipeline is constructed from superh spesific elements; 
+ * gst-sh-mobile-dec and gst-sh-mobile-sink. the gst-sh-mobile-sink is a 
+ * videosink element for SuperH.
+ *
+ * \section dec-properties Properties
+ * \copydoc gstshvideodecproperties
+ *
+ * \section dec-pads Pads
+ * \copydoc sink_factory
+ * \copydoc src_factory
+ * 
+ * \section dec-license Licensing
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
@@ -20,7 +64,6 @@
  * Aki Honkasuo <aki.honkasuo@nomovok.com>
  *
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -36,9 +79,9 @@
 #include "gstshvideobuffer.h"
 
 /**
- * Define capatibilities for the sink factory
+ * \var sink_factory "The sink pad"
+ * \showinitializer
  */
-
 static GstStaticPadTemplate sink_factory = 
   GST_STATIC_PAD_TEMPLATE ("sink",
 			   GST_PAD_SINK,
@@ -89,6 +132,10 @@ static GstStaticPadTemplate sink_factory =
 					    )
 			   );
 
+/**
+ * \var src_factory "The src pad"
+ * \showinitializer
+ */
 static GstStaticPadTemplate src_factory = 
   GST_STATIC_PAD_TEMPLATE ("src",
 			   GST_PAD_SRC,
@@ -117,10 +164,10 @@ GST_DEBUG_CATEGORY_STATIC (gst_sh_mobile_debug);
 #define DEFAULT_MAX_SIZE 0
 
 /**
+ * \enum gstshvideodecproperties
  * Define decoder properties
  */
-
-enum
+enum gstshvideodecproperties
 {
   PROP_0,
   PROP_MAX_BUFFER_SIZE,
@@ -298,7 +345,7 @@ gst_shvideodec_dispose (GObject * object)
 
   if (dec->decoder != NULL) 
   {
-    GST_DEBUG_OBJECT (dec, "close decoder object %p", dec->decoder);
+    GST_LOG_OBJECT (dec, "close decoder object %p", dec->decoder);
     shcodecs_decoder_close (dec->decoder);
   }
   G_OBJECT_CLASS (parent_class)->dispose (object);
@@ -480,7 +527,7 @@ gst_shvideodec_setcaps (GstPad * pad, GstCaps * sink_caps)
 
   if (!strcmp (gst_structure_get_name (structure), "video/x-h264")) 
   {
-    GST_DEBUG_OBJECT(dec, "codec format is video/x-h264");
+    GST_INFO_OBJECT(dec, "codec format is video/x-h264");
     dec->format = SHCodecs_Format_H264;
   }
   else
@@ -491,33 +538,37 @@ gst_shvideodec_setcaps (GstPad * pad, GstCaps * sink_caps)
 	!strcmp (gst_structure_get_name (structure), "video/mpeg")
 	) 
     {
-      GST_DEBUG_OBJECT (dec, "codec format is video/mpeg");
+      GST_INFO_OBJECT (dec, "codec format is video/mpeg");
       dec->format = SHCodecs_Format_MPEG4;
     } 
     else 
     {
-      GST_DEBUG_OBJECT(dec,"%s failed (not supported: %s)",__FUNCTION__,gst_structure_get_name (structure));
+      GST_INFO_OBJECT(dec,"%s failed (not supported: %s)",__FUNCTION__,gst_structure_get_name (structure));
       return FALSE;
     }
   }
 
-  if(!gst_structure_get_fraction (structure, "framerate", 
+  if(gst_structure_get_fraction (structure, "framerate", 
 				  &dec->fps_numerator, 
 				  &dec->fps_denominator))
+  {    
+    GST_INFO_OBJECT(dec,"Framerate: %d/%d",dec->fps_numerator,dec->fps_denominator);
+  }
+  else
   {
-    GST_DEBUG_OBJECT(dec,"%s failed (no framerate)",__FUNCTION__);
+    GST_INFO_OBJECT(dec,"%s failed (no framerate)",__FUNCTION__);
     return FALSE;
   }
 
   if (gst_structure_get_int (structure, "width",  &dec->width)
       && gst_structure_get_int (structure, "height", &dec->height)) 
   {
-    GST_DEBUG_OBJECT(dec,"%s initializing decoder %dx%d",__FUNCTION__,dec->width,dec->height);
+    GST_INFO_OBJECT(dec,"%s initializing decoder %dx%d",__FUNCTION__,dec->width,dec->height);
     dec->decoder=shcodecs_decoder_init(dec->width,dec->height,dec->format);
   } 
   else 
   {
-    GST_DEBUG_OBJECT(dec,"%s failed (no width/height)",__FUNCTION__);
+    GST_INFO_OBJECT(dec,"%s failed (no width/height)",__FUNCTION__);
     return FALSE;
   }
 
@@ -590,7 +641,6 @@ gst_shvideodec_chain (GstPad * pad, GstBuffer * inbuffer)
 {
   Gstshvideodec *dec = (Gstshvideodec *) (GST_OBJECT_PARENT (pad));
   GstFlowReturn ret = GST_FLOW_OK;
-  gint percent;
 
   if(!dec->caps_set)
   {
@@ -604,25 +654,11 @@ gst_shvideodec_chain (GstPad * pad, GstBuffer * inbuffer)
   if(dec->buffer &&
      GST_BUFFER_SIZE(dec->buffer) + GST_BUFFER_SIZE(inbuffer) > dec->buffer_size)
   {
-    /* Decoder not lauched yet */
-    if(!dec->dec_thread)
-    {
-      GST_DEBUG_OBJECT(dec,"Pre-buffering complete. The new frame doesn't fit");    
-      gst_element_post_message((GstElement*)dec,gst_message_new_buffering((GstObject*)dec,100));      
-      /* We'll have to launch the decoder in 
-         a separate thread to keep the pipeline running */
-      dec->running = TRUE;
-      pthread_create( &dec->dec_thread, NULL, gst_shvideodec_decode, dec);
-    }
-    /* Wait until previous buffer is handled */
-    else
-    {
-      GST_DEBUG_OBJECT(dec,"Buffer full, waiting");    
-      pthread_mutex_lock( &dec->cond_mutex );
-      pthread_cond_wait( &dec->thread_condition, &dec->cond_mutex );
-      pthread_mutex_unlock( &dec->cond_mutex );
-      GST_DEBUG_OBJECT(dec,"Got signal");
-    }    
+    GST_DEBUG_OBJECT(dec,"Buffer full, waiting");    
+    pthread_mutex_lock( &dec->cond_mutex );
+    pthread_cond_wait( &dec->thread_condition, &dec->cond_mutex );
+    pthread_mutex_unlock( &dec->cond_mutex );
+    GST_DEBUG_OBJECT(dec,"Got signal");
   }
 
   /* Buffering */
@@ -634,8 +670,6 @@ gst_shvideodec_chain (GstPad * pad, GstBuffer * inbuffer)
 		   GST_TIME_AS_MSECONDS(GST_BUFFER_TIMESTAMP (inbuffer)),
 		   GST_TIME_AS_MSECONDS(GST_BUFFER_DURATION (inbuffer)));
 
-    dec->buffer_timestamp = GST_BUFFER_TIMESTAMP (inbuffer);
-    dec->buffer_frames = 1;
     dec->buffer = inbuffer;
   }  
   else
@@ -646,28 +680,15 @@ gst_shvideodec_chain (GstPad * pad, GstBuffer * inbuffer)
 		   GST_TIME_AS_MSECONDS(GST_BUFFER_DURATION (inbuffer)));
 
     dec->buffer = gst_buffer_join(dec->buffer,inbuffer);
-    dec->buffer_frames++;
     GST_LOG_OBJECT(dec,"Buffer added. Now storing %d bytes",GST_BUFFER_SIZE(dec->buffer));        
   }
   pthread_mutex_unlock( &dec->mutex );
 
-  /* We are still pre-buffering */  
   if(!dec->dec_thread)
   {
-    /* Pre-buffering done, start decoding now */
-    if(!dec->buffer_size || (GST_BUFFER_SIZE(dec->buffer) >= dec->buffer_size))
-    {
-      GST_DEBUG_OBJECT(dec,"Pre-buffering complete");    
-      dec->running = TRUE;
-      pthread_create( &dec->dec_thread, NULL, gst_shvideodec_decode, dec);
-    } 
-    /* Report pre-buffering status */
-    else
-    {
-      percent = GST_BUFFER_SIZE(dec->buffer) * 100 / dec->buffer_size;
-      GST_LOG_OBJECT(dec,"Pre-buffering %d",percent);    
-      gst_element_post_message((GstElement*)dec,gst_message_new_buffering((GstObject*)dec,percent));      
-    }
+    GST_DEBUG_OBJECT(dec,"Starting the decoder thread");    
+    dec->running = TRUE;
+    pthread_create( &dec->dec_thread, NULL, gst_shvideodec_decode, dec);
   }
 
   /* Free waiting decoder */
@@ -704,8 +725,6 @@ gst_shvideodec_decode (void *data)
     pthread_mutex_lock(&dec->mutex);
     buffer = dec->buffer;
     dec->buffer = NULL; 
-    dec->decode_timestamp = dec->buffer_timestamp;
-    dec->decode_frames = dec->buffer_frames;
     pthread_mutex_unlock(&dec->mutex); 
 
     // If the other thread was waiting for buffer to be consumed
@@ -713,23 +732,30 @@ gst_shvideodec_decode (void *data)
     pthread_cond_signal( &dec->thread_condition);
     pthread_mutex_unlock( &dec->cond_mutex );
 
-    GST_DEBUG_OBJECT(dec,"Input buffer size: %d frames %d",
-		   GST_BUFFER_SIZE (buffer), dec->decode_frames);
-
-    dec->decoded = 0;
+    GST_DEBUG_OBJECT(dec,"Input buffer size: %d",GST_BUFFER_SIZE (buffer));
 
     used_bytes = shcodecs_decode(dec->decoder,
 		    GST_BUFFER_DATA (buffer),
 		    GST_BUFFER_SIZE (buffer));
 
-    GST_DEBUG_OBJECT(dec,"Used: %d decoded, %d frames, total %d frames",
-		   used_bytes, dec->decoded, shcodecs_decoder_get_frame_count(dec->decoder));
+    GST_DEBUG_OBJECT(dec,"Used: %d",used_bytes);
 
     if(GST_BUFFER_SIZE(buffer) != used_bytes)
     {    
-      GST_DEBUG_OBJECT(dec,"Skipped %d frames and %d bytes of data",
-		       dec->decode_frames - dec->decoded,
-		       GST_BUFFER_SIZE(buffer)-used_bytes);
+      pthread_mutex_lock(&dec->mutex);
+      if(dec->buffer)
+      {
+        dec->buffer = gst_buffer_join(
+		       gst_buffer_create_sub(buffer,used_bytes,GST_BUFFER_SIZE(buffer)-used_bytes),
+		       dec->buffer);
+      }
+      else
+      {
+        dec->buffer = gst_buffer_create_sub(buffer,used_bytes,GST_BUFFER_SIZE(buffer)-used_bytes);
+      }
+      GST_DEBUG_OBJECT(dec,"Preserving %d bytes of data",
+		       GST_BUFFER_SIZE(dec->buffer));
+      pthread_mutex_unlock(&dec->mutex); 
     }
 
     if(!dec->running)
@@ -786,12 +812,11 @@ gst_shcodecs_decoded_callback (SHCodecs_Decoder * decoder,
 
   GST_BUFFER_CAPS(buf) = gst_caps_copy(GST_PAD_CAPS(dec->srcpad));
   GST_BUFFER_DURATION(buf) = GST_SECOND * dec->fps_denominator / dec->fps_numerator;
-  GST_BUFFER_TIMESTAMP(buf) = dec->decode_timestamp + 
-    dec->decoded * GST_BUFFER_DURATION(buf);
+  GST_BUFFER_TIMESTAMP(buf) = offset * GST_BUFFER_DURATION(buf);
   GST_BUFFER_OFFSET_END(buf) = offset;
 
-  dec->decoded++;
-
+  GST_DEBUG_OBJECT (dec, "Pushing frame number: %d time: %" GST_TIME_FORMAT, 
+		    offset, GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (buf)));
   ret = gst_pad_push (dec->srcpad, buf);
 
   if (ret != GST_FLOW_OK) 
