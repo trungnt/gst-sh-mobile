@@ -1,6 +1,6 @@
 /**
  * \page dec gst-sh-mobile-dec
- * gst-sh-mobile-dec - decodes MPEG4/H264 video stream to raw YUV image data 
+ * gst-sh-mobile-dec - Decodes MPEG4/H264 video stream to raw YUV image data 
  * on SuperH environment using libshcodecs HW codec.
  *
  * \section dec-description Description
@@ -28,19 +28,19 @@
  * Again filesrc element is used for reading the file, which this time is an AVI
  * wrapped video containing both audio and video streams. avidemux element is 
  * used for stripping the avi container. avidemux has two src-pads, which are 
- * named “demux” using a property. both of the avidemux src pads are first
+ * named “demux” using a property. Both of the avidemux src pads are first
  * connecte to queue elements, which takes care of the buffering of the data in
  * the pipeline.
  *  
- * the audio stream is then connected to the the decodebin element, which detects
+ * The audio stream is then connected to the the decodebin element, which detects
  * the stream format and does the decoding. audioconvert and audioresample 
  * elements are used for transforming the data in suitable format for for 
- * playback. the last element in the audio pipeline is autoaudiosink, which
- * automaticly detects and connects the correct audio sink for playback. this
+ * playback. The last element in the audio pipeline is autoaudiosink, which
+ * automaticly detects and connects the correct audio sink for playback. This
  * audio pipeline composition is very standard in gstreamer programming.
  * 
- * the video pipeline is constructed from superh spesific elements; 
- * gst-sh-mobile-dec and gst-sh-mobile-sink. the gst-sh-mobile-sink is a 
+ * The video pipeline is constructed from superh spesific elements; 
+ * gst-sh-mobile-dec and gst-sh-mobile-sink. The gst-sh-mobile-sink is a 
  * videosink element for SuperH.
  *
  * \section dec-properties Properties
@@ -205,7 +205,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_sh_mobile_debug);
  * \enum gstshvideodecproperties
  * gst-sh-mobile-dec has following properties:
  * - "buffer-size" (gint). Maximum size of the cache buffer in KB. Default: 1000
- * - "hw-buffer" (string). enables/disables usage of hardware data buffering.
+ * - "hw-buffer" (string). Enables/disables usage of hardware data buffering.
  *   HW buffering makes zero copy functionality possible if gst-sh-mobile-sink
  *   element is connected to the src -pad. Possible values: "yes"/"no"/"auto". 
  *   Default: auto
