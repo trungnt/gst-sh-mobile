@@ -1,7 +1,13 @@
 /**
- * \page dec "gst-sh-mobile-dec"
+ * \page dec gst-sh-mobile-dec
  * gst-sh-mobile-dec - decodes MPEG4/H264 video stream to raw YUV image data 
  * on SuperH environment using libshcodecs HW codec.
+ *
+ * \section dec-description Description
+ * This element is designed to use the HW video processing modules of the
+ * Renesas SuperH chipset to decode MPEG4/H264 video streams. This element
+ * is not usable in any other environments and it requires libshcodes HW codec
+ * to be installed.
  *
  * \section dec-examples Example launch lines
  * \code
@@ -112,6 +118,12 @@ static GstStaticPadTemplate dec_sink_factory =
 					    "height = (int) [48, 576],"
 					    "framerate = (fraction) [0, 25],"
                                             "mpegversion = (int) 4"
+					    ";"
+					    "video/mpeg,"
+					    "width  = (int) [48, 720],"
+					    "height = (int) [48, 480],"
+					    "framerate = (fraction) [0, 30],"
+                                            "mpegversion = (int) 4"
 					    "; "
 					    "video/x-h264,"
 					    "width  = (int) [48, 720],"
@@ -120,10 +132,23 @@ static GstStaticPadTemplate dec_sink_factory =
 					    "variant = (string) itu,"
 					    "h264version = (string) h264"
 					    "; "
+					    "video/x-h264,"
+					    "width  = (int) [48, 720],"
+					    "height = (int) [48, 480],"
+					    "framerate = (fraction) [0, 30],"
+					    "variant = (string) itu,"
+					    "h264version = (string) h264"
+					    ";"
 					    "video/x-divx,"
 					    "width  = (int) [48, 720],"
 					    "height = (int) [48, 576],"
 					    "framerate = (fraction) [0, 25],"
+					    "divxversion =  {4, 5, 6}"
+					    "; "
+					    "video/x-divx,"
+					    "width  = (int) [48, 720],"
+					    "height = (int) [48, 480],"
+					    "framerate = (fraction) [0, 30],"
 					    "divxversion =  {4, 5, 6}"
 					    "; "
 					    "video/x-xvid,"
@@ -131,24 +156,10 @@ static GstStaticPadTemplate dec_sink_factory =
 					    "height = (int) [48, 576],"
 					    "framerate = (fraction) [0, 25]"
 					    "; "
-					    "video/x-h264,"
+					    "video/x-xvid,"
 					    "width  = (int) [48, 720],"
 					    "height = (int) [48, 480],"
-					    "framerate = (fraction) [0, 30],"
-					    "variant = (string) itu,"
-					    "h264version = (string) h264"
-					    ";"
-					    "video/x-divx,"
-					    "width  = (int) [48, 720],"
-					    "height = (int) [48, 480],"
-					    "framerate = (fraction) [0, 30],"
-					    "divxversion =  {4, 5, 6}"
-					    ";"
-					    "video/mpeg,"
-					    "width  = (int) [48, 720],"
-					    "height = (int) [48, 480],"
-					    "framerate = (fraction) [0, 30],"
-                                            "mpegversion = (int) 4"
+					    "framerate = (fraction) [0, 30]"
 					    )
 			   );
 
@@ -192,7 +203,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_sh_mobile_debug);
 
 /**
  * \enum gstshvideodecproperties
- * gst-sh-mobile has following properties:
+ * gst-sh-mobile-dec has following properties:
  * - "buffer-size" (gint). Maximum size of the cache buffer in KB. Default: 1000
  * - "hw-buffer" (string). enables/disables usage of hardware data buffering.
  *   HW buffering makes zero copy functionality possible if gst-sh-mobile-sink
