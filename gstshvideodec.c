@@ -41,8 +41,8 @@
  * \copydoc gstshvideodecproperties
  *
  * \section dec-pads Pads
- * \copydoc sink_factory
- * \copydoc src_factory
+ * \copydoc dec_sink_factory
+ * \copydoc dec_src_factory
  * 
  * \section dec-license Licensing
  * This library is free software; you can redistribute it and/or
@@ -79,10 +79,30 @@
 #include "gstshvideobuffer.h"
 
 /**
- * \var sink_factory "The sink pad"
- * \showinitializer
+ * \var dec_sink_factory
+ * Name: sink \n
+ * Direction: sink \n
+ * Available: always \n
+ * Caps:
+ * - video/mpeg, width=(int)[48,720], height=(int)[48,576], 
+ *   framerate=(fraction)[1,25], mpegversion=(int)4
+ * - video/mpeg, width=(int)[48,720], height=(int)[48,480], 
+ *   framerate=(fraction)[1,30], mpegversion=(int)4
+ * - video/x-h264, width=(int)[48,720], height=(int)[48,576], 
+ *   framerate=(fraction)[1,25], h264version=(int)h264
+ * - video/x-h264, width=(int)[48,720], height=(int)[48,480], 
+ *   framerate=(fraction)[1,30], h264version=(int)h264
+ * - video/x-divx, width=(int)[48,720], height=(int)[48,576], 
+ *   framerate=(fraction)[1,25], divxversion=(int){4,5,6}
+ * - video/x-divx, width=(int)[48,720], height=(int)[48,480], 
+ *   framerate=(fraction)[1,30], divxversion=(int){4,5,6}
+ * - video/x-xvid, width=(int)[48,720], height=(int)[48,576], 
+ *   framerate=(fraction)[1,25]
+ * - video/x-xvid, width=(int)[48,720], height=(int)[48,480], 
+ *   framerate=(fraction)[1,30]
+ *
  */
-static GstStaticPadTemplate sink_factory = 
+static GstStaticPadTemplate dec_sink_factory = 
   GST_STATIC_PAD_TEMPLATE ("sink",
 			   GST_PAD_SINK,
 			   GST_PAD_ALWAYS,
@@ -133,10 +153,17 @@ static GstStaticPadTemplate sink_factory =
 			   );
 
 /**
- * \var src_factory "The src pad"
- * \showinitializer
+ * \var dec_src_factory
+ * Name: src \n
+ * Direction: src \n
+ * Available: always \n
+ * Caps:
+ * - video/x-raw-yuv, format=(fourcc)NV12, width=(int)[48,720], 
+ *   height=(int)[48,576], framerate=(fraction)[1,25]
+ * - video/x-raw-yuv, format=(fourcc)NV12, width=(int)[48,720], 
+ *   height=(int)[48,480], framerate=(fraction)[1,30]
  */
-static GstStaticPadTemplate src_factory = 
+static GstStaticPadTemplate dec_src_factory = 
   GST_STATIC_PAD_TEMPLATE ("src",
 			   GST_PAD_SRC,
 			   GST_PAD_ALWAYS,
@@ -165,7 +192,12 @@ GST_DEBUG_CATEGORY_STATIC (gst_sh_mobile_debug);
 
 /**
  * \enum gstshvideodecproperties
- * Define decoder properties
+ * gst-sh-mobile has following properties:
+ * - "buffer-size" (gint). Maximum size of the cache buffer in KB. Default: 1000
+ * - "hw-buffer" (string). enables/disables usage of hardware data buffering.
+ *   HW buffering makes zero copy functionality possible if gst-sh-mobile-sink
+ *   element is connected to the src -pad. Possible values: "yes"/"no"/"auto". 
+ *   Default: auto
  */
 enum gstshvideodecproperties
 {
@@ -175,16 +207,16 @@ enum gstshvideodecproperties
   PROP_LAST
 };
 
+#define HW_BUFFER_AUTO "auto"
+#define HW_BUFFER_YES  "yes"
+#define HW_BUFFER_NO   "no"
+
 enum
 {
   HW_ADDR_AUTO,
   HW_ADDR_YES,
   HW_ADDR_NO
 };
-
-#define HW_BUFFER_AUTO "auto"
-#define HW_BUFFER_YES  "yes"
-#define HW_BUFFER_NO   "no"
 
 // STATIC DECLARATIONS
 
@@ -330,9 +362,9 @@ gst_shvideodec_base_init (gpointer klass)
   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
   gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_factory));
+      gst_static_pad_template_get (&dec_sink_factory));
   gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_factory));
+      gst_static_pad_template_get (&dec_src_factory));
   gst_element_class_set_details (element_class, &plugin_details);
 }
 
@@ -369,7 +401,7 @@ gst_shvideodec_class_init (GstshvideodecClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_MAX_BUFFER_SIZE,
       g_param_spec_uint ("buffer-size", "Maximum buffer size kB", 
-			"Maximum size of the experimental pre-buffer (kB, 0=disabled)", 
+			"Maximum size of the cache buffer (kB, 0=disabled)", 
                            0, G_MAXUINT, DEFAULT_MAX_SIZE,
 			   G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
