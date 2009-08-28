@@ -1,12 +1,13 @@
 /**
  * \page enc gst-sh-mobile-enc
- * gst-sh-mobile-enc - encodes raw YUV image data to MPEG4/H264 video stream on
+ * gst-sh-mobile-enc - Encodes raw YUV image data to MPEG4/H264 video stream on
  * SuperH environment using libshcodecs HW codec.
  *
  * \section dec-description Description
  * This element is designed to use the HW video processing modules of the Renesas
- * SuperH chipset to encode mpeg4/h264 video streams. this element is not usable
- * in any other environments and it requires libshcodes HW codec to be installed.\n
+ * SuperH chipset to encode mpeg4/h264 video streams. This element is not usable
+ * in any other environments and it requires libshcodes HW codec to be installed.
+ * 
  * The encoding settings are defined in a control file, which is given to the
  * encoder as a property.
  * 
@@ -16,7 +17,7 @@
  * ! filesink location=test.m4v
  * \endcode
  * Very simple pipeline where filesrc and filesink elements are used for reading
- * the raw data and writing the encoded data. in this pipeline the
+ * the raw data and writing the encoded data. In this pipeline the
  * gst-sh-mobile-enc operates in pull mode, so it is the element driving the data
  * flow.
  *
@@ -26,10 +27,10 @@
  * cntl_file=KMp4_000.ctl ! filesink location=test.m4v
  * \endcode
  * In this example, web cam is used as the streaming source via v4l2src element.
- * the webcam in this example provides jpeg -image data. this pipeline works in
+ * the webcam in this example provides jpeg -image data. This pipeline works in
  * push mode, so we need to specify the stream properties using static caps after
  * the v4l2src element. jpegdec decodes the jpeg images and ffmpegcolorspace is
- * used to convert the image data for the encoder. again, filesink is used to
+ * used to convert the image data for the encoder. Again, filesink is used to
  * write the encoded video stream to a file.
  *
  * \section enc-properties Properties
@@ -59,8 +60,6 @@
  * Aki Honkasuo <aki.honkasuo@nomovok.com>
  *
  */
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
