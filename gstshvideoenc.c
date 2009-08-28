@@ -33,6 +33,23 @@
  * used to convert the image data for the encoder. Again, filesink is used to
  * write the encoded video stream to a file.
  *
+ * \code
+ * gst-launch v4l2src device=/dev/video0 ! image/jpeg,width=320,height=240,
+ * framerate=15/1 ! jpegdec ! ffmpegcolorspace ! gst-sh-mobile-enc
+ * cntl_file=KMp4_000.ctl ! rtpmp4vpay ! udpsink host=192.168.10.10 port=5000
+ * sync=false 
+ * \endcode
+ * This line is similar to the one above. Only this time the video is not stored
+ * in a file but sent over the network using udpsink -element. Before sending
+ * The video is packed into RTP frame using rtpmp4vpay -element.
+ *
+ * With following line it is possible to playback the video in PC:
+ * \code
+ * gst-launch udpsrc port=5000 caps="application/x-rtp,clock-rate=90000"
+ * ! gstrtpjitterbuffer latency=0 ! rtpmp4vdepay ! video/mpeg,width=320,
+ * height=240,framerate=15/1 ! ffdec_mpeg4 ! ffmpegcolorspace ! ximagesink 
+ * \endcode
+ * 
  * \section enc-properties Properties
  * \copydoc gstshvideoencproperties
  *
