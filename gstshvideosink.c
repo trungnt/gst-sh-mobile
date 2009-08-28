@@ -1,3 +1,75 @@
+/**
+ * \page sink gst-sh-mobile-sink
+ * gst-sh-mobile-sink - Video sink on SuperH environment.
+ *
+ * \section sink-description Description
+ * Basic video sink for the Renesas SuperH chipset.
+ * 
+ * \section sink-examples Example launch lines
+ * \code
+ * gst-launch videotestsrc !  gst-sh-mobile-sink
+ * \endcode
+ * As simple pipeline as possible for testing the gst-sh-mobile-sink element.
+ * Videotestsrc provides test video streams in various formats.
+ *
+ * \code
+ * gst-launch filesrc location=/mnt/usb/theora-test.ogg ! oggdemux ! theoradec
+ * ! ffmpegcolorspace ! gst-sh-mobile-sink width=400 height=240 x=100 y=100
+ * \endcode
+ * OGG video stream read from a file using filesrc element and then demuxed with
+ * oggdemux. The  Theora video elementary stream is then decoded using theoradec
+ * element. Output is scaled to 400x240 resolution and top-left corner is placed
+ * at 100:100 coordinates using the properties of gst-sh-mobile-sink.
+ *
+ * \code
+ * gst-launch filesrc location=test.avi ! avidemux name=demux demux.audio_00
+ * ! queue ! decodebin ! audioconvert ! audioresample ! autoaudiosink
+ * demux.video_00 ! queue ! gst-sh-mobile-dec ! gst-sh-mobile-sink
+ * \endcode
+ * Filesrc element is used for reading the file, which this time is an avi
+ * wrapped video containing both audio and video streams. avidemux element is
+ * used for stripping the avi container. avidemux has two src-pads, which are
+ * named “demux” using a property. Both of the avidemux src pads are first
+ * connected to queue elements, which takes care of the buffering of the data in
+ * the pipeline. 
+ *
+ * The audio stream is then connected to the the decodebin element, which detects
+ * the stream format and does the decoding. audioconvert and audioresample
+ * elements are used for transforming the data in suitable format for for
+ * playback. The last element in the audio pipeline is autoaudiosink, which
+ * automaticly detects and connects the correct audio sink for playback. This
+ * audio pipeline composition is very standard in GStreamer programming.
+ * 
+ * The video pipeline is constructed from superh spesific elements;
+ * gst-sh-mobile-dec and gst-sh-mobile-sink. The gst-sh-mobile-sink is
+ * a videosink element for SuperH.
+ *
+ * \section sink-properties Properties
+ * \copydoc gstshvideosinkproperties
+ *
+ * \section sink-pads Pads
+ * \copydoc gst_shvideosink_sink_template_factory
+ * 
+ * \section sink-license Licensing
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA  02110-1301 USA
+ *
+ * Johannes Lahti <johannes.lahti@nomovok.com>
+ * Pablo Virolainen <pablo.virolainen@nomovok.com>
+ * Aki Honkasuo <aki.honkasuo@nomovok.com>
+ *
+ */
 #include <string.h>
 
 #include "gstshvideosink.h"
@@ -6,7 +78,15 @@
 GST_DEBUG_CATEGORY_STATIC (gst_shvideosink_debug);
 #define GST_CAT_DEFAULT gst_shvideosink_debug
 
-/* TODO: Add more formats. VEU supports several other formats too */
+/**
+ * \var gst_shvideosink_sink_template_factory
+ * Name: sink \n
+ * Direction: sink \n
+ * Available: always \n
+ * Caps:
+ * - video/x-raw-yuv, format=(fourcc)NV12, width=(int)[16,2560], 
+ *   height=(int)[16,1920], framerate=(fraction)[1,30]
+ */
 static GstStaticPadTemplate gst_shvideosink_sink_template_factory =
 GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
@@ -14,17 +94,23 @@ GST_STATIC_PAD_TEMPLATE ("sink",
     GST_STATIC_CAPS (
 		     "video/x-raw-yuv, "
 		     "format = (fourcc) NV12,"
-		     "framerate = (fraction) [0, 30],"
+		     "framerate = (fraction) [1, 30],"
 		     "width = (int) [16, 2560],"
 		     "height = (int) [16, 1920]" 
 		     )
     );
 
 /**
- * Define sink properties
+ * \enum gstshvideosinkproperties
+ * gst-sh-mobile-sink has following properties:
+ * - "width" (int). Width of the video output. Default: original width.
+ * - "height" (int). Height of the video output. Default: original height.
+ * - "x" (int). X-coordinate of the video output. Default: 0.
+ * - "y" (int). Y-coordinate of the video output. Default: 0.
+ * - "zoom" (string). Zoom factor of the vido output. Possible values:
+ *   "orig"/"full"/"double"/"half". Default: "orig"
  */
-
-enum
+enum gstshvideosinkproperties
 {
   PROP_0,
   PROP_WIDTH,
