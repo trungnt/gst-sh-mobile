@@ -38,10 +38,20 @@
  * playback. The last element in the audio pipeline is autoaudiosink, which
  * automaticly detects and connects the correct audio sink for playback. This
  * audio pipeline composition is very standard in gstreamer programming.
- * 
+ *
  * The video pipeline is constructed from superh spesific elements; 
  * gst-sh-mobile-dec and gst-sh-mobile-sink. The gst-sh-mobile-sink is a 
  * videosink element for SuperH.
+ *
+ * \code
+ * gst-launch udpsrc port=5000 caps="application/x-rtp,clock-rate=90000"
+ * ! gstrtpjitterbuffer latency=0 ! rtpmp4vdepay ! video/mpeg,width=320,
+ * height=240,framerate=15/1 ! gst-sh-mobile-dec ! gst-sh-mobile-sink 
+ * \endcode
+ * Here the video stream is received from udpsrc element. gstrtpjitterbuffer
+ * element is used to take care ordering and storing the received RTP packages.
+ * Next rtpmp4vdepay element is used to remove the RTP frames from the buffers.
+ * Again, the static caps are needed to pass info to the decoder.
  *
  * \section dec-properties Properties
  * \copydoc gstshvideodecproperties
