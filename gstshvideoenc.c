@@ -1,6 +1,45 @@
 /**
- * gst-sh-mobile-enc
+ * \page enc gst-sh-mobile-enc
+ * gst-sh-mobile-enc - encodes raw YUV image data to MPEG4/H264 video stream on
+ * SuperH environment using libshcodecs HW codec.
  *
+ * \section dec-description Description
+ * This element is designed to use the HW video processing modules of the Renesas
+ * SuperH chipset to encode mpeg4/h264 video streams. this element is not usable
+ * in any other environments and it requires libshcodes HW codec to be installed.\n
+ * The encoding settings are defined in a control file, which is given to the
+ * encoder as a property.
+ * 
+ * \section enc-examples Example launch lines
+ * \code
+ * gst-launch filesrc location=test.yuv ! gst-sh-mobile-enc cntl-file=m4v.ctl
+ * ! filesink location=test.m4v
+ * \endcode
+ * Very simple pipeline where filesrc and filesink elements are used for reading
+ * the raw data and writing the encoded data. in this pipeline the
+ * gst-sh-mobile-enc operates in pull mode, so it is the element driving the data
+ * flow.
+ *
+ * \code
+ * gst-launch v4l2src device=/dev/video0 ! image/jpeg,width=320,height=240,
+ * framerate=15/1 ! jpegdec ! ffmpegcolorspace ! gst-sh-mobile-enc
+ * cntl_file=KMp4_000.ctl ! filesink location=test.m4v
+ * \endcode
+ * In this example, web cam is used as the streaming source via v4l2src element.
+ * the webcam in this example provides jpeg -image data. this pipeline works in
+ * push mode, so we need to specify the stream properties using static caps after
+ * the v4l2src element. jpegdec decodes the jpeg images and ffmpegcolorspace is
+ * used to convert the image data for the encoder. again, filesink is used to
+ * write the encoded video stream to a file.
+ *
+ * \section enc-properties Properties
+ * \copydoc gstshvideoencproperties
+ *
+ * \section enc-pads Pads
+ * \copydoc enc_sink_factory
+ * \copydoc enc_src_factory
+ * 
+ * \section enc-license Licensing
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
@@ -42,40 +81,81 @@
 #include "cntlfile/ControlFileUtil.h"
 
 /**
- * Define capatibilities for the sink factory
+ * \var enc_sink_factory
+ * Name: sink \n
+ * Direction: sink \n
+ * Available: always \n
+ * Caps:
+ * - video/x-raw-yuv, format=(fourcc)NV12, width=(int)[48,720], 
+ *   height=(int)[48,576], framerate=(fraction)[1,25]
+ * - video/x-raw-yuv, format=(fourcc)NV12, width=(int)[48,720], 
+ *   height=(int)[48,480], framerate=(fraction)[1,30]
  */
-
-static GstStaticPadTemplate sink_factory = 
+static GstStaticPadTemplate enc_sink_factory = 
   GST_STATIC_PAD_TEMPLATE ("sink",
 			   GST_PAD_SINK,
 			   GST_PAD_ALWAYS,
-			   GST_STATIC_CAPS ("video/x-raw-yuv, "
+			   GST_STATIC_CAPS (
+					    "video/x-raw-yuv, "
 					    "format = (fourcc) NV12,"
-					    "width = (int) [16, 720],"
-					    "height = (int) [16, 720]," 
-					    "framerate = (fraction) [0, 30]")
+					    "width = (int) [48, 720],"
+					    "height = (int) [48, 480]," 
+					    "framerate = (fraction) [0, 30]"
+					    ";"
+					    "video/x-raw-yuv, "
+					    "format = (fourcc) NV12,"
+					    "width = (int) [48, 720],"
+					    "height = (int) [48, 576]," 
+					    "framerate = (fraction) [0, 25]"
+					    )
 			   );
 
 
 /**
- * Define capatibilities for the source factory
+ * \var enc_src_factory
+ * Name: src \n
+ * Direction: src \n
+ * Available: always \n
+ * Caps:
+ * - video/mpeg, width=(int)[48,720], height=(int)[48,576], 
+ *   framerate=(fraction)[1,25], mpegversion=(int)4
+ * - video/mpeg, width=(int)[48,720], height=(int)[48,480], 
+ *   framerate=(fraction)[1,30], mpegversion=(int)4
+ * - video/x-h264, width=(int)[48,720], height=(int)[48,576], 
+ *   framerate=(fraction)[1,25], h264version=(int)h264
+ * - video/x-h264, width=(int)[48,720], height=(int)[48,480], 
+ *   framerate=(fraction)[1,30], h264version=(int)h264
  */
-
-static GstStaticPadTemplate src_factory = 
+static GstStaticPadTemplate enc_src_factory = 
   GST_STATIC_PAD_TEMPLATE ("src",
 			   GST_PAD_SRC,
 			   GST_PAD_ALWAYS,
-			   GST_STATIC_CAPS ("video/mpeg,"
-					    "width = (int) [16, 720],"
-					    "height = (int) [16, 720],"
+			   GST_STATIC_CAPS (
+					    "video/mpeg,"
+					    "width  = (int) [48, 720],"
+					    "height = (int) [48, 576],"
+					    "framerate = (fraction) [0, 25],"
+                                            "mpegversion = (int) 4"
+					    ";"
+					    "video/mpeg,"
+					    "width  = (int) [48, 720],"
+					    "height = (int) [48, 480],"
 					    "framerate = (fraction) [0, 30],"
-					    "mpegversion = (int) 4"
+                                            "mpegversion = (int) 4"
 					    "; "
 					    "video/x-h264,"
-					    "width = (int) [16, 720],"
-					    "height = (int) [16, 720],"
-					    "framerate = (fraction) [0, 30]"
-					    //PITÄIS OLLA SAMAT KUIN DEKOODERISSA SINK
+					    "width  = (int) [48, 720],"
+					    "height = (int) [48, 576],"
+					    "framerate = (fraction) [0, 25],"
+					    "variant = (string) itu,"
+					    "h264version = (string) h264"
+					    "; "
+					    "video/x-h264,"
+					    "width  = (int) [48, 720],"
+					    "height = (int) [48, 480],"
+					    "framerate = (fraction) [0, 30],"
+					    "variant = (string) itu,"
+					    "h264version = (string) h264"
 					    )
 			   );
 
@@ -85,10 +165,12 @@ GST_DEBUG_CATEGORY_STATIC (gst_sh_mobile_debug);
 static GstElementClass *parent_class = NULL;
 
 /**
- * Define encoder properties
+ * \enum gstshvideoencproperties
+ * gst-sh-mobile-enc has following property:
+ * - "cntl-file" (string). Name of the control file containing encoding
+ *   parameters. Default: NULL
  */
-
-enum
+enum gstshvideoencproperties
 {
   PROP_0,
   PROP_CNTL_FILE,
@@ -276,9 +358,9 @@ gst_shvideo_enc_base_init (gpointer klass)
   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
   gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_factory));
+      gst_static_pad_template_get (&enc_src_factory));
   gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_factory));
+      gst_static_pad_template_get (&enc_sink_factory));
   gst_element_class_set_details (element_class, &plugin_details);
 }
 
