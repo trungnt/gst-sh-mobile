@@ -12,6 +12,7 @@
  * encoder as a property.
  * 
  * \section enc-examples Example launch lines
+ * \subsection enc-examples-1 Encoding from a file to a file
  * \code
  * gst-launch filesrc location=test.yuv ! gst-sh-mobile-enc cntl-file=m4v.ctl
  * ! filesink location=test.m4v
@@ -21,11 +22,15 @@
  * gst-sh-mobile-enc operates in pull mode, so it is the element driving the data
  * flow.
  *
+ * \subsection enc-examples-2 Encoding from a webcam to a file
  * \code
  * gst-launch v4l2src device=/dev/video0 ! image/jpeg,width=320,height=240,
  * framerate=15/1 ! jpegdec ! ffmpegcolorspace ! gst-sh-mobile-enc
  * cntl_file=KMp4_000.ctl ! filesink location=test.m4v
  * \endcode
+ * 
+ * \image html encoder_example.jpeg
+ * 
  * In this example, web cam is used as the streaming source via v4l2src element.
  * the webcam in this example provides jpeg -image data. This pipeline works in
  * push mode, so we need to specify the stream properties using static caps after
@@ -33,6 +38,7 @@
  * used to convert the image data for the encoder. Again, filesink is used to
  * write the encoded video stream to a file.
  *
+ * \subsection enc-examples-3 Encoding from a webcam to network
  * \code
  * gst-launch v4l2src device=/dev/video0 ! image/jpeg,width=320,height=240,
  * framerate=15/1 ! jpegdec ! ffmpegcolorspace ! gst-sh-mobile-enc
@@ -57,7 +63,7 @@
  * \copydoc enc_sink_factory
  * \copydoc enc_src_factory
  * 
- * \section enc-license Licensing
+ * \section enc-license License
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
