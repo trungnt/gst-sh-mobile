@@ -10,6 +10,9 @@
  * to be installed.
  *
  * \section dec-examples Example launch lines
+ * 
+ * \subsection dec-example-1 Decoding from a file to a file
+ * 
  * \code
  * gst-launch filesrc location=test.m4v ! video/mpeg, width=320, height=240,
  * framerate=30/1, mpegversion=4 ! gst-sh-mobile-dec ! filesink location=test.raw
@@ -20,11 +23,16 @@
  * The last element in the pipeline is filesink, which writes the output YUV-data
  * into a file.
  *
+ * \subsection dec-example-2 Decoding an AVI -video with audio&video playback
+ *
  * \code
  * gst-launch filesrc location=test.avi ! avidemux name=demux demux.audio_00 ! 
  * queue ! decodebin ! audioconvert ! audioresample ! autoaudiosink 
  * demux.video_00 ! queue ! gst-sh-mobile-dec ! gst-sh-mobile-sink
  * \endcode
+ *
+ * \image html decoder_example.jpeg
+ *
  * Again filesrc element is used to read the file, which this time is an AVI
  * wrapped video containing both audio and video streams. avidemux element is 
  * used to strip the avi container. avidemux has two src-pads, which are 
@@ -43,6 +51,8 @@
  * gst-sh-mobile-dec and gst-sh-mobile-sink. The gst-sh-mobile-sink is a 
  * videosink element for SuperH.
  *
+ * \subsection dec-example-3 Decoding a video stream from net
+ *  
  * \code
  * gst-launch udpsrc port=5000 caps="application/x-rtp,clock-rate=90000"
  * ! gstrtpjitterbuffer latency=0 ! rtpmp4vdepay ! video/mpeg,width=320,
