@@ -14,9 +14,9 @@
  * gst-launch filesrc location=test.m4v ! video/mpeg, width=320, height=240,
  * framerate=30/1, mpegversion=4 ! gst-sh-mobile-dec ! filesink location=test.raw
  * \endcode
- * In this pipeline we use filesrc element for reading the source file, 
+ * In this pipeline we use filesrc element to read the source file, 
  * which is a MPEG4 video elementary stream. After filesrc we add static caps 
- * as the the filesrc doesn't do caps negotiation and the decoder requires them. 
+ * as the filesrc does not do caps negotiation and the decoder requires them. 
  * The last element in the pipeline is filesink, which writes the output YUV-data
  * into a file.
  *
@@ -25,21 +25,21 @@
  * queue ! decodebin ! audioconvert ! audioresample ! autoaudiosink 
  * demux.video_00 ! queue ! gst-sh-mobile-dec ! gst-sh-mobile-sink
  * \endcode
- * Again filesrc element is used for reading the file, which this time is an AVI
+ * Again filesrc element is used to read the file, which this time is an AVI
  * wrapped video containing both audio and video streams. avidemux element is 
- * used for stripping the avi container. avidemux has two src-pads, which are 
+ * used to strip the avi container. avidemux has two src-pads, which are 
  * named “demux” using a property. Both of the avidemux src pads are first
- * connecte to queue elements, which takes care of the buffering of the data in
+ * connected to queue elements, which take care of the buffering of the data in
  * the pipeline.
  *  
- * The audio stream is then connected to the the decodebin element, which detects
+ * The audio stream is then connected to the decodebin element, which detects
  * the stream format and does the decoding. audioconvert and audioresample 
- * elements are used for transforming the data in suitable format for for 
+ * elements are used to transform the data into suitable format for 
  * playback. The last element in the audio pipeline is autoaudiosink, which
  * automaticly detects and connects the correct audio sink for playback. This
- * audio pipeline composition is very standard in gstreamer programming.
+ * audio pipeline composition is very common in the gstreamer programming.
  *
- * The video pipeline is constructed from superh spesific elements; 
+ * The video pipeline is constructed from SuperH spesific elements; 
  * gst-sh-mobile-dec and gst-sh-mobile-sink. The gst-sh-mobile-sink is a 
  * videosink element for SuperH.
  *
@@ -60,7 +60,7 @@
  * \copydoc dec_sink_factory
  * \copydoc dec_src_factory
  * 
- * \section dec-license Licensing
+ * \section dec-license License
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
