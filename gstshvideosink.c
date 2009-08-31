@@ -6,11 +6,17 @@
  * Basic video sink for the Renesas SuperH chipset.
  * 
  * \section sink-examples Example launch lines
+ *
+ * \subsection sink-example-1 Displaying a test stream
+ *
  * \code
  * gst-launch videotestsrc !  gst-sh-mobile-sink
  * \endcode
  * As simple pipeline as possible for testing the gst-sh-mobile-sink element.
  * Videotestsrc provides test video streams in various formats.
+ *
+ *
+ * \subsection sink-example-2 Displaying an Ogg video
  *
  * \code
  * gst-launch filesrc location=/mnt/usb/theora-test.ogg ! oggdemux ! theoradec
@@ -21,11 +27,17 @@
  * element. Output is scaled to 400x240 resolution and top-left corner is placed
  * at 100:100 coordinates using the properties of gst-sh-mobile-sink.
  *
+ *
+ * \subsection sink-example-3 Displaying an AVI video + audio playback
+ *
  * \code
  * gst-launch filesrc location=test.avi ! avidemux name=demux demux.audio_00
  * ! queue ! decodebin ! audioconvert ! audioresample ! autoaudiosink
  * demux.video_00 ! queue ! gst-sh-mobile-dec ! gst-sh-mobile-sink
  * \endcode
+ *
+ * \image html decoder_example.jpeg
+ *
  * Filesrc element is used for reading the file, which this time is an avi
  * wrapped video containing both audio and video streams. avidemux element is
  * used for stripping the avi container. avidemux has two src-pads, which are
