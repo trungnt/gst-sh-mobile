@@ -1,6 +1,4 @@
 /**
- * gst-sh-mobile-dec-sink
- *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
@@ -15,9 +13,9 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA  02110-1301 USA
  *
- * @author Pablo Virolainen <pablo.virolainen@nomovok.com>
- * @author Johannes Lahti <johannes.lahti@nomovok.com>
- * @author Aki Honkasuo <aki.honkasuo@nomovok.com>
+ * \author Pablo Virolainen <pablo.virolainen@nomovok.com>
+ * \author Johannes Lahti <johannes.lahti@nomovok.com>
+ * \author Aki Honkasuo <aki.honkasuo@nomovok.com>
  *
  */
 
@@ -46,9 +44,26 @@ typedef struct _GstshvideodecClass GstshvideodecClass;
 #include <shcodecs/shcodecs_decoder.h>
 
 /**
- * Define Gstreamer SH Video Decoder structure
+ * \struct _Gstshvideodec gstshvideodec.h
+ * \var element GstElement object
+ * \var sinkpad Pointer to our sink pad
+ * \var srcpad Pointer to our src pad
+ * \var format Stream type. Possible values: 0(none), 1(MPEG4) and 2 (H264)
+ * \var width Width of the video
+ * \var height Height of the video
+ * \var fps_numerator Numerator of the framerate fraction
+ * \var fps_denominator Denominator of the framerate fraction
+ * \var decoder pointer to the SHCodecs decoder object
+ * \var caps_set A flag indicating whether the caps has been set for the pads
+ * \var running A flag indicating that the decoding thread should be running
+ * \var use_physical HW buffer usage setting
+ * \var buffer Pointer to the cache buffer
+ * \var buffer_size Size of the cache buffer
+ * \var dec_thread Decoder thread
+ * \var mutex Mutex for the common data
+ * \var cond_mutex Mutex for the conditional variable of the decoder thread
+ * \var thread_condition Conditional variable of the decoder thread
  */
-
 struct _Gstshvideodec
 {
   GstElement element;
@@ -56,7 +71,6 @@ struct _Gstshvideodec
   GstPad *sinkpad;
   GstPad *srcpad;
 
-  /* Input stream */
   SHCodecs_Format format;
   gint width;
   gint height;
@@ -79,24 +93,22 @@ struct _Gstshvideodec
 };
 
 /**
- * Define Gstreamer SH Video Decoder Class structure
+ * GstshvideodecClass
+ * \var parent Parent class
  */
-
 struct _GstshvideodecClass
 {
   GstElementClass parent;
 };
 
 /** Get gst-sh-mobile-dec-sink object type
-    @return object type
+    \var return object type
 */
-
 GType gst_shvideodec_get_type (void);
 
 /** The video input buffer decode function
-    @param data decoder object
+    \var param data decoder object
 */
-
 void* gst_shvideodec_decode (void *data);
 
 G_END_DECLS
