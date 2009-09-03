@@ -17,10 +17,10 @@
  * gst-launch filesrc location=test.yuv ! gst-sh-mobile-enc cntl-file=m4v.ctl
  * ! filesink location=test.m4v
  * \endcode
- * Very simple pipeline where filesrc and filesink elements are used for reading
- * the raw data and writing the encoded data. In this pipeline the
- * gst-sh-mobile-enc operates in pull mode, so it is the element driving the data
- * flow.
+ * Very simple pipeline where filesrc and filesink elements are used to read
+ * the raw data and write the encoded data. In this pipeline the
+ * gst-sh-mobile-enc operates in pull mode, so it is the element which drives the
+ * data flow.
  *
  * \subsection enc-examples-2 Encoding from a webcam to a file
  * \code
@@ -243,14 +243,16 @@ static gboolean gst_shvideo_enc_sink_event (GstPad * pad, GstEvent * event);
 /** Initialize the encoder sink pad 
     @param pad Gstreamer sink pad
     @param caps The capabilities of the data to encode
-    @return returns true if the video capatilies are supported and the video can be decoded, else false
+    @return returns true if the video capatilies are supported and the video can
+            be decoded, else false
 */
 
 static gboolean gst_shvideoenc_setcaps (GstPad * pad, GstCaps * caps);
 
-/** Encoder active event and checks is this pull or push event 
+/** Handles the activation event. Activates the element in pull mode, if it
+    is supported.
     @param pad Gstreamer sink pad
-    @return returns true if the event handled with out errors, else false
+    @return returns true if the event handled without errors, else false
 */
 
 static gboolean	gst_shvideo_enc_activate (GstPad *pad);
@@ -258,15 +260,15 @@ static gboolean	gst_shvideo_enc_activate (GstPad *pad);
 /** Function to start the pad task
     @param pad Gstreamer sink pad
     @param active true if the task needed to be started or false to stop the task
-    @return returns true if the event handled with out errors, else false
+    @return returns true if the event handled without errors, else false
 */
 
 static gboolean	gst_shvideo_enc_activate_pull (GstPad *pad, gboolean active);
 
 /** The encoder function and launches the thread if needed
     @param pad Gstreamer sink pad
-    @param buffer Buffer where to put back the encoded data
-    @return returns GST_FLOW_OK if the function with out errors
+    @param buffer The raw data for encoding.
+    @return returns GST_FLOW_OK if the function runs without errors
 */
 
 static GstFlowReturn gst_shvideo_enc_chain (GstPad *pad, GstBuffer *buffer);
