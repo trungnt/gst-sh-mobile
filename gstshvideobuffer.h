@@ -1,3 +1,23 @@
+/**
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA  02110-1301 USA
+ *
+ * \author Pablo Virolainen <pablo.virolainen@nomovok.com>
+ * \author Johannes Lahti <johannes.lahti@nomovok.com>
+ * \author Aki Honkasuo <aki.honkasuo@nomovok.com>
+ *
+ */
 #ifndef GSTSHVIDEOBUFFER_H
 #define GSTSHVIDEOBUFFER_H
 
@@ -13,58 +33,44 @@ typedef struct _Gstshvideobuffer Gstshvideobuffer;
 typedef struct _Gstshvideobufferclass Gstshvideobufferclass;
 
 /**
- * Gstshvideobuffer:
- * @y_data: HW data pointer to the y -data
- * @y_size: size of the Y -data
- * @c_data: HW data pointer to the U/V -data
- * @c_size: size of the U/V -data
- *
- * Subclass of #GstBuffer containing additional 
- * data pointers and sizes for Y and U/V -image data.
+ * \struct _Gstshvideobuffer
+ * \brief SuperH HW buffer for YUV-data
+ * \var buffer Parent buffer
+ * \var y_data Pointer to the Y-data
+ * \var y_size Size of the Y-data
+ * \var c_data Pointer to the C-data
+ * \var c_size Size of the C-data
  */
-struct _Gstshvideobuffer {
-  GstBuffer buffer;
+struct _Gstshvideobuffer 
+{
+	GstBuffer buffer;
 
-  guint8   *y_data;
-  guint    y_size;
-  guint8   *c_data;
-  guint    c_size;
+	guint8   *y_data;
+	guint    y_size;
+	guint8   *c_data;
+	guint    c_size;
 };
 
+/**
+ * \struct _Gstshvideobufferclass
+ * \var parent Parent
+ */
 struct _Gstshvideobufferclass
 {
-  GstBufferClass parent;
+	GstBufferClass parent;
 };
 
-/**
- * GST_SHVIDEOBUFFER_Y_DATA:
- * @buf: a #Gstshvideobuffer.
- *
- * A pointer to the y_data element of this buffer.
- */
+// Some macros
+
 #define GST_SHVIDEOBUFFER_Y_DATA(buf)  (GST_SHVIDEOBUFFER_CAST(buf)->y_data)
-/**
- * GST_SHVIDEOBUFFER_Y_SIZE:
- * @buf: a #Gstshvideobuffer.
- *
- * The size in bytes of the y_data in this buffer.
- */
 #define GST_SHVIDEOBUFFER_Y_SIZE(buf)  (GST_SHVIDEOBUFFER_CAST(buf)->y_size)
-/**
- * GST_SHVIDEOBUFFER_C_DATA:
- * @buf: a #Gstshvideobuffer.
- *
- * A pointer to the c_data element of this buffer.
- */
 #define GST_SHVIDEOBUFFER_C_DATA(buf)  (GST_SHVIDEOBUFFER_CAST(buf)->c_data)
-/**
- * GST_SHVIDEOBUFFER_C_SIZE:
- * @buf: a #Gstshvideobuffer.
- *
- * The size in bytes of the c_data in this buffer.
- */
 #define GST_SHVIDEOBUFFER_C_SIZE(buf)  (GST_SHVIDEOBUFFER_CAST(buf)->c_size)
 
+/** 
+ * Get Gstshbuffer object type
+ * @return object type
+ */
 GType gst_shvideobuffer_get_type (void);
 
 #endif //GSTSHVIDEOBUFFER_H
