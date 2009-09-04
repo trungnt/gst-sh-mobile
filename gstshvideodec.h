@@ -29,15 +29,15 @@
 
 G_BEGIN_DECLS
 #define GST_TYPE_SHVIDEODEC \
-  (gst_shvideodec_get_type())
+	(gst_shvideodec_get_type())
 #define GST_SHVIDEODEC(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_SHVIDEODEC,Gstshvideodec))
+	(G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_SHVIDEODEC,Gstshvideodec))
 #define GST_SHVIDEODEC_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_SHVIDEODEC,Gstshvideodec))
+	(G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_SHVIDEODEC,Gstshvideodec))
 #define GST_IS_SHVIDEODEC(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_SHVIDEODEC))
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_SHVIDEODEC))
 #define GST_IS_SHVIDEODEC_CLASS(obj) \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_SHVIDEODEC))
+	(G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_SHVIDEODEC))
 typedef struct _Gstshvideodec Gstshvideodec;
 typedef struct _GstshvideodecClass GstshvideodecClass;
 
@@ -66,48 +66,49 @@ typedef struct _GstshvideodecClass GstshvideodecClass;
  */
 struct _Gstshvideodec
 {
-  GstElement element;
+	GstElement element;
 
-  GstPad *sinkpad;
-  GstPad *srcpad;
+	GstPad *sinkpad;
+	GstPad *srcpad;
 
-  SHCodecs_Format format;
-  gint width;
-  gint height;
-  gint fps_numerator;
-  gint fps_denominator;
-  SHCodecs_Decoder * decoder;
+	SHCodecs_Format format;
+	gint width;
+	gint height;
+	gint fps_numerator;
+	gint fps_denominator;
+	SHCodecs_Decoder * decoder;
 
-  gboolean caps_set;
-  gboolean running;
-  
-  gint use_physical;  
+	gboolean caps_set;
+	gboolean running;
+	
+	gint use_physical;  
 
-  GstBuffer* buffer;
-  guint32 buffer_size;
+	GstBuffer* buffer;
+	guint32 buffer_size;
 
-  pthread_t dec_thread;
-  pthread_mutex_t mutex;
-  pthread_mutex_t cond_mutex;
-  pthread_cond_t  thread_condition;
+	pthread_t dec_thread;
+	pthread_mutex_t mutex;
+	pthread_mutex_t cond_mutex;
+	pthread_cond_t  thread_condition;
 };
 
 /**
  * GstshvideodecClass
+ * \struct _GstshvideodecClass
  * \var parent Parent class
  */
 struct _GstshvideodecClass
 {
-  GstElementClass parent;
+	GstElementClass parent;
 };
 
 /** Get gst-sh-mobile-dec-sink object type
-    \var return object type
+* \var return object type
 */
 GType gst_shvideodec_get_type (void);
 
 /** The video input buffer decode function
-    \var param data decoder object
+* \var param data decoder object
 */
 void* gst_shvideodec_decode (void *data);
 

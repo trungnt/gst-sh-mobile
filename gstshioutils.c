@@ -1,7 +1,26 @@
-/*
+/**
  * SuperH VEU color space conversion and scaling
  * Based on MPlayer Vidix driver by Magnus Damm
  * Modified for GStreamer video display sink usage
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA  02110-1301 USA
+ *
+ * \author Pablo Virolainen <pablo.virolainen@nomovok.com>
+ * \author Johannes Lahti <johannes.lahti@nomovok.com>
+ * \author Aki Honkasuo <aki.honkasuo@nomovok.com>
+ *
  */
 
 #include <sys/mman.h>
@@ -18,6 +37,7 @@
 #define VEU_NAME "VEU2H"
 #define MAXNAMELEN 256
 
+// Registers
 
 #define VPDYR 0x10 /* vpu: decoded y/rgb plane address */
 #define VPDCR 0x14 /* vpu: decoded c plane address */
@@ -60,339 +80,351 @@
 
 unsigned long read_reg(uio_map *ump, int reg_offs)
 {
-    volatile unsigned long *reg = ump->iomem;
+	volatile unsigned long *reg = ump->iomem;
 
-    return reg[reg_offs / 4];
+	return reg[reg_offs / 4];
 }
 
 void write_reg(uio_map *ump, unsigned long value, int reg_offs)
 {
-    volatile unsigned long *reg = ump->iomem;
+	volatile unsigned long *reg = ump->iomem;
 
-    reg[reg_offs / 4] = value;
+	reg[reg_offs / 4] = value;
 }
 
 void
 clear_framebuffer(framebuffer *fbuf)
 {
-  memset(fbuf->iomem, 0, fbuf->finfo.line_length * fbuf->vinfo.yres);
+	memset(fbuf->iomem, 0, fbuf->finfo.line_length * fbuf->vinfo.yres);
 }
 
 gboolean 
 init_framebuffer(framebuffer *fbuf)
 {
-  int fd;
+	int fd;
 
-  fd = open(FB_DEVICE, O_RDWR);
-  if (fd < 0) 
-  {
-    return FALSE;
-  }
+	fd = open(FB_DEVICE, O_RDWR);
+	if (fd < 0) 
+	{
+		return FALSE;
+	}
 
-  if (ioctl(fd, FBIOGET_VSCREENINFO, &fbuf->vinfo) == -1) 
-  {
-    return FALSE;
-  }
+	if (ioctl(fd, FBIOGET_VSCREENINFO, &fbuf->vinfo) == -1) 
+	{
+		return FALSE;
+	}
 
-  if (ioctl(fd, FBIOGET_FSCREENINFO, &fbuf->finfo) == -1) 
-  {
-    return FALSE;
-  }
+	if (ioctl(fd, FBIOGET_FSCREENINFO, &fbuf->finfo) == -1) 
+	{
+		return FALSE;
+	}
 
-  fbuf->iomem = mmap(0, fbuf->finfo.smem_len, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	fbuf->iomem = mmap(0, fbuf->finfo.smem_len, 
+			   PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
-  if (fbuf->iomem == MAP_FAILED) 
-  {
-    return FALSE;
-  }
-  
-  clear_framebuffer(fbuf);
+	if (fbuf->iomem == MAP_FAILED) 
+	{
+		return FALSE;
+	}
+	
+	clear_framebuffer(fbuf);
 
-  close(fd);
-  return TRUE;
+	close(fd);
+	return TRUE;
 }
 
 int fgets_with_openclose(char *fname, char *buf, size_t maxlen)
 {
-    FILE *fp;
+		FILE *fp;
 
-    fp = fopen(fname, "r");
-    if (!fp)
-        return -1;
+		fp = fopen(fname, "r");
+		if (!fp)
+			return -1;
 
-    fgets(buf, maxlen, fp);
-    fclose(fp);
-    return strlen(buf);
+		fgets(buf, maxlen, fp);
+		fclose(fp);
+		return strlen(buf);
 }
 
 int locate_uio_device(char *name, uio_device *udp)
 {
-  char fname[MAXNAMELEN], buf[MAXNAMELEN];
-  char *tmp;
-  int uio_id;
+	char fname[MAXNAMELEN], buf[MAXNAMELEN];
+	char *tmp;
+	int uio_id;
 
-  uio_id = -1;
-  do 
-  {
-    uio_id++;
-    snprintf(fname, MAXNAMELEN, "/sys/class/uio/uio%d/name", uio_id);
-    if (fgets_with_openclose(fname, buf, MAXNAMELEN) < 0)
-      return -1;
-  } while (strncmp(name, buf, strlen(name)));
+	uio_id = -1;
+	do 
+	{
+		uio_id++;
+		snprintf(fname, MAXNAMELEN, "/sys/class/uio/uio%d/name", 
+			uio_id);
+		if (fgets_with_openclose(fname, buf, MAXNAMELEN) < 0)
+			return -1;
+	} while (strncmp(name, buf, strlen(name)));
 
-  tmp = strchr(buf, '\n');
-  if (tmp)
-    *tmp = '\0';
+	tmp = strchr(buf, '\n');
+	if (tmp)
+		*tmp = '\0';
 
-  udp->name = strdup(buf);
-  udp->path = strdup(fname);
-  udp->path[strlen(udp->path) - 5] = '\0';
+	udp->name = strdup(buf);
+	udp->path = strdup(fname);
+	udp->path[strlen(udp->path) - 5] = '\0';
 
-  snprintf(buf, MAXNAMELEN, "/dev/uio%d", uio_id);
-  udp->fd = open(buf, O_RDWR | O_SYNC);
+	snprintf(buf, MAXNAMELEN, "/dev/uio%d", uio_id);
+	udp->fd = open(buf, O_RDWR | O_SYNC);
 
-  if (udp->fd < 0)
-    return -1;
+	if (udp->fd < 0)
+		return -1;
 
-  return 0;
+	return 0;
 }
 
 int setup_uio_map(uio_device *udp, int nr, uio_map *ump)
 {
-  char fname[MAXNAMELEN], buf[MAXNAMELEN];
+	char fname[MAXNAMELEN], buf[MAXNAMELEN];
 
-  snprintf(fname, MAXNAMELEN, "%s/maps/map%d/addr", udp->path, nr);
-  if (fgets_with_openclose(fname, buf, MAXNAMELEN) <= 0)
-    return -1;
+	snprintf(fname, MAXNAMELEN, "%s/maps/map%d/addr", udp->path, nr);
+	if (fgets_with_openclose(fname, buf, MAXNAMELEN) <= 0)
+		return -1;
 
-  ump->address = strtoul(buf, NULL, 0);
+	ump->address = strtoul(buf, NULL, 0);
 
-  snprintf(fname, MAXNAMELEN, "%s/maps/map%d/size", udp->path, nr);
-  if (fgets_with_openclose(fname, buf, MAXNAMELEN) <= 0)
-    return -1;
+	snprintf(fname, MAXNAMELEN, "%s/maps/map%d/size", udp->path, nr);
+	if (fgets_with_openclose(fname, buf, MAXNAMELEN) <= 0)
+		return -1;
 
-  ump->size = strtoul(buf, NULL, 0);
-  ump->iomem = mmap(0, ump->size,
-		    PROT_READ|PROT_WRITE, MAP_SHARED,
-		    udp->fd, nr * getpagesize());
+	ump->size = strtoul(buf, NULL, 0);
+	ump->iomem = mmap(0, ump->size,
+				PROT_READ|PROT_WRITE, MAP_SHARED,
+				udp->fd, nr * getpagesize());
 
-  if (ump->iomem == MAP_FAILED)
-    return -1;
+	if (ump->iomem == MAP_FAILED)
+		return -1;
 
-  return 0;
+	return 0;
 }
 
 gboolean
 init_module(uio_module *module, char *name)
 {
-  gint ret;
+	gint ret;
 
-  ret = locate_uio_device(name, &module->dev);
-  if (ret < 0) 
-  {
-    return FALSE;
-  }
+	ret = locate_uio_device(name, &module->dev);
+	if (ret < 0) 
+	{
+		return FALSE;
+	}
 
-  ret = setup_uio_map(&module->dev, 0, &module->mmio);
-  if (ret < 0) 
-  {
-    return FALSE;
-  }
+	ret = setup_uio_map(&module->dev, 0, &module->mmio);
+	if (ret < 0) 
+	{
+		return FALSE;
+	}
 
-  ret = setup_uio_map(&module->dev, 1, &module->mem);
-  if (ret < 0) 
-  {
-    return FALSE;
-  }
+	ret = setup_uio_map(&module->dev, 1, &module->mem);
+	if (ret < 0) 
+	{
+		return FALSE;
+	}
 
-  return TRUE;      
+	return TRUE;      
 }
 
 gboolean init_veu(uio_module *veu)
 {
-  if(!init_module(veu,VEU_NAME))
-  {
-    return FALSE;
-  }
-  
-  write_reg(&veu->mmio, 0x100, VBSRR); /* reset VEU */
+	if(!init_module(veu,VEU_NAME))
+	{
+		return FALSE;
+	}
+	
+	write_reg(&veu->mmio, 0x100, VBSRR); /* reset VEU */
 
-  return TRUE;
+	return TRUE;
 }
 
 unsigned long do_scale(uio_map *ump,
-		       int vertical, int size_in,
-		       int size_out, int crop_out)
+					 int vertical, int size_in,
+					 int size_out, int crop_out)
 {
-    unsigned long fixpoint, mant, frac, value, rep;
+		unsigned long fixpoint, mant, frac, value, rep;
 
-    /* calculate FRAC and MANT */
-    do {
-        rep = mant = frac = 0;
+		/* calculate FRAC and MANT */
+		/* The formula is available in the SuperH data sheet. */
+		do 
+		{
+			rep = mant = frac = 0;
 
-        if (size_in == size_out) {
-            if (crop_out != size_out)
-                mant = 1; /* needed for cropping */
-            break;
-        }
+			if (size_in == size_out) 
+			{
+				if (crop_out != size_out)
+					mant = 1; /* needed for cropping */
+				break;
+			}
 
-        /* VEU2H special upscale */
-        if (size_out > size_in) {
-            fixpoint = (4096 * size_in) / size_out;
+			/* VEU2H special upscale */
+			if (size_out > size_in) 
+			{
+				fixpoint = (4096 * size_in) / size_out;
 
-            mant = fixpoint / 4096;
-            frac = fixpoint - (mant * 4096);
-            frac &= ~0x07;
+				mant = fixpoint / 4096;
+				frac = fixpoint - (mant * 4096);
+				frac &= ~0x07;
 
-            switch (frac) {
-            case 0x800:
-                rep = 1;
-                break;
-            case 0x400:
-                rep = 3;
-                break;
-            case 0x200:
-                rep = 7;
-                break;
-            }
+				switch (frac) 
+				{
+					case 0x800:
+						rep = 1;
+						break;
+					case 0x400:
+						rep = 3;
+						break;
+					case 0x200:
+						rep = 7;
+						break;
+				}
 
-            if (rep)
-                break;
-        }
+				if (rep)
+					break;
+			}
 
-        fixpoint = (4096 * (size_in - 1)) / (size_out + 1);
-        mant = fixpoint / 4096;
-        frac = fixpoint - (mant * 4096);
+			fixpoint = (4096 * (size_in - 1)) / (size_out + 1);
+			mant = fixpoint / 4096;
+			frac = fixpoint - (mant * 4096);
 
-        if (frac & 0x07) {
-            frac &= ~0x07;
-            if (size_out > size_in)
-                frac -= 8; /* round down if scaling up */
-            else
-                frac += 8; /* round up if scaling down */
-        }
+			if (frac & 0x07) 
+			{
+				frac &= ~0x07;
+				if (size_out > size_in)
+					frac -= 8; /* round down if scaling up */
+				else
+					frac += 8; /* round up if scaling down */
+			}
 
-    } while (0);
+		} while (0);
 
-    /* set scale */
-    value = read_reg(ump, VRFCR);
-    if (vertical) {
-        value &= ~0xffff0000;
-        value |= ((mant << 12) | frac) << 16;
-    } else {
-        value &= ~0xffff;
-        value |= (mant << 12) | frac;
-    }
-    write_reg(ump, value, VRFCR);
+		/* set scale */
+		value = read_reg(ump, VRFCR);
+		if (vertical) 
+		{
+			value &= ~0xffff0000;
+			value |= ((mant << 12) | frac) << 16;
+		} 
+		else 
+		{
+			value &= ~0xffff;
+			value |= (mant << 12) | frac;
+		}
+		write_reg(ump, value, VRFCR);
 
-    /* set clip */
-    value = read_reg(ump, VRFSR);
-    if (vertical) {
-        value &= ~0xffff0000;
-        value |= ((rep << 12) | crop_out) << 16;
-    } else {
-        value &= ~0xffff;
-        value |= (rep << 12) | crop_out;
-    }
-    write_reg(ump, value, VRFSR);
+		/* set clip */
+		value = read_reg(ump, VRFSR);
+		if (vertical) 
+		{
+			value &= ~0xffff0000;
+			value |= ((rep << 12) | crop_out) << 16;
+		} 
+		else 
+		{
+			value &= ~0xffff;
+			value |= (rep << 12) | crop_out;
+		}
+		write_reg(ump, value, VRFSR);
 
-    return (((size_in * crop_out) / size_out) + 0x03) & ~0x03;
+		return (((size_in * crop_out) / size_out) + 0x03) & ~0x03;
 }
 
 gboolean 
 setup_veu(uio_module *veu, int src_w, int src_h, int dst_w, int dst_h, 
-	  int dst_stride, int pos_x, int pos_y, 
-	  int dst_max_w, int dst_max_h, unsigned long dst_addr, int bpp)
+		int dst_stride, int pos_x, int pos_y, 
+		int dst_max_w, int dst_max_h, unsigned long dst_addr, int bpp)
 {
-  int src_stride, cropped_w, cropped_h;
+	int src_stride, cropped_w, cropped_h;
 
-  if(strcmp(veu->dev.name,VEU_NAME))
-  {
-    /* Not VEU */
-    return FALSE;
-  }
+	if(strcmp(veu->dev.name,VEU_NAME))
+	{
+		/* Not VEU */
+		return FALSE;
+	}
 
-  /* Aligning */
-  src_stride = (src_w+15) & ~15;
-  pos_x = pos_x & ~0x03;
-  
-  /* Cropped sizes */
-  cropped_w = dst_w;
-  cropped_h = dst_h;
-  if ((dst_w + pos_x) > dst_max_w)
-    cropped_w = dst_max_w - pos_x;
+	/* Aligning */
+	src_stride = (src_w+15) & ~15;
+	pos_x = pos_x & ~0x03;
+	
+	/* Cropped sizes */
+	cropped_w = dst_w;
+	cropped_h = dst_h;
+	if ((dst_w + pos_x) > dst_max_w)
+		cropped_w = dst_max_w - pos_x;
 
-  if ((dst_h + pos_y) > dst_max_h)
-    cropped_h = dst_max_h - pos_y;
+	if ((dst_h + pos_y) > dst_max_h)
+		cropped_h = dst_max_h - pos_y;
 
-  dst_addr += pos_x * (bpp / 8);
-  dst_addr += pos_y * dst_stride;
+	dst_addr += pos_x * (bpp / 8);
+	dst_addr += pos_y * dst_stride;
 
-  src_w = do_scale(&veu->mmio, 0, src_w, dst_w, cropped_w);
-  src_h = do_scale(&veu->mmio, 1, src_h, dst_h, cropped_h);
+	src_w = do_scale(&veu->mmio, 0, src_w, dst_w, cropped_w);
+	src_h = do_scale(&veu->mmio, 1, src_h, dst_h, cropped_h);
 
-  write_reg(&veu->mmio, src_stride, VESWR);
-  write_reg(&veu->mmio, src_w | (src_h << 16), VESSR);
-  write_reg(&veu->mmio, 0, VBSSR); /* not using bundle mode */
+	write_reg(&veu->mmio, src_stride, VESWR);
+	write_reg(&veu->mmio, src_w | (src_h << 16), VESSR);
+	write_reg(&veu->mmio, 0, VBSSR); /* not using bundle mode */
 
-  write_reg(&veu->mmio, dst_stride, VEDWR);
-  write_reg(&veu->mmio, dst_addr, VDAYR);
-  write_reg(&veu->mmio, 0, VDACR); /* unused for RGB */
+	write_reg(&veu->mmio, dst_stride, VEDWR);
+	write_reg(&veu->mmio, dst_addr, VDAYR);
+	write_reg(&veu->mmio, 0, VDACR); /* unused for RGB */
 
-  write_reg(&veu->mmio, 0x67, VSWPR);
-  write_reg(&veu->mmio, (6 << 16) | 2 | 4, VTRCR); // NV12
+	write_reg(&veu->mmio, 0x67, VSWPR);
+	write_reg(&veu->mmio, (6 << 16) | 2 | 4, VTRCR); // NV12
 
-  /* YUV->RGB Conversion coeffs */
-  write_reg(&veu->mmio, 0x0cc5, VMCR00);
-  write_reg(&veu->mmio, 0x0950, VMCR01);
-  write_reg(&veu->mmio, 0x0000, VMCR02);
+	/* YUV->RGB Conversion coeffs */
+	write_reg(&veu->mmio, 0x0cc5, VMCR00);
+	write_reg(&veu->mmio, 0x0950, VMCR01);
+	write_reg(&veu->mmio, 0x0000, VMCR02);
 
-  write_reg(&veu->mmio, 0x397f, VMCR10);
-  write_reg(&veu->mmio, 0x0950, VMCR11);
-  write_reg(&veu->mmio, 0x3ccd, VMCR12);
+	write_reg(&veu->mmio, 0x397f, VMCR10);
+	write_reg(&veu->mmio, 0x0950, VMCR11);
+	write_reg(&veu->mmio, 0x3ccd, VMCR12);
 
-  write_reg(&veu->mmio, 0x0000, VMCR20);
-  write_reg(&veu->mmio, 0x0950, VMCR21);
-  write_reg(&veu->mmio, 0x1023, VMCR22);
+	write_reg(&veu->mmio, 0x0000, VMCR20);
+	write_reg(&veu->mmio, 0x0950, VMCR21);
+	write_reg(&veu->mmio, 0x1023, VMCR22);
 
-  write_reg(&veu->mmio, 0x00800010, VCOFFR);
+	write_reg(&veu->mmio, 0x00800010, VCOFFR);
 
-  //  write_reg(&veu->mmio, (0 << 4) | (0 << 5) | 1, VFMCR);
+	write_reg(&veu->mmio, 1, VEIER); /* enable interrupt in VEU */
 
-  write_reg(&veu->mmio, 1, VEIER); /* enable interrupt in VEU */
-
-  return TRUE;
+	return TRUE;
 }
 
 gboolean
 veu_blit(uio_module *veu, unsigned long y_addr, unsigned long c_addr)
 {
-  unsigned long enable = 1;
+	unsigned long enable = 1;
 
-  if(strcmp(veu->dev.name,VEU_NAME))
-  {
-    /* Not VEU */
-    return FALSE;
-  }
-    
-  write_reg(&veu->mmio, y_addr, VSAYR);
-  write_reg(&veu->mmio, c_addr, VSACR);
+	if(strcmp(veu->dev.name,VEU_NAME))
+	{
+		/* Not VEU */
+		return FALSE;
+	}
+		
+	write_reg(&veu->mmio, y_addr, VSAYR);
+	write_reg(&veu->mmio, c_addr, VSACR);
 
-  /* Enable interrupt in UIO driver */
-  write(veu->dev.fd, &enable, sizeof(unsigned long));
+	/* Enable interrupt in UIO driver */
+	write(veu->dev.fd, &enable, sizeof(unsigned long));
 
-  write_reg(&veu->mmio, 1, VESTR); /* start operation */
+	write_reg(&veu->mmio, 1, VESTR); /* start operation */
 
-  return TRUE;
+	return TRUE;
 }
 
-/*
+/* Might be used later
 void veu_wait_irq(vidix_playback_t *info)
 {
-    unsigned long n_pending;
+		unsigned long n_pending;
 
-    read(uio_dev.fd, &n_pending, sizeof(unsigned long));
+		read(uio_dev.fd, &n_pending, sizeof(unsigned long));
 
-    write_reg(&uio_mmio, 0x100, VEVTR);
+		write_reg(&uio_mmio, 0x100, VEVTR);
 }
 */
