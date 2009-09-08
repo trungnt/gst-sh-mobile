@@ -12,7 +12,7 @@
  * \code
  * gst-launch videotestsrc !  gst-sh-mobile-sink
  * \endcode
- * As simple pipeline as possible to testing the gst-sh-mobile-sink element.
+ * As simple pipeline as possible to test the gst-sh-mobile-sink element.
  * Videotestsrc provides test video streams in various formats.
  *
  *
@@ -40,7 +40,7 @@
  *
  * Filesrc element is used to read the file, which this time is an avi
  * wrapped video containing both audio and video streams. avidemux element is
- * used for stripping the avi container. avidemux has two src-pads, which are
+ * used to strip the avi container. avidemux has two src-pads, which are
  * named “demux” using a property. Both of the avidemux src pads are first
  * connected to queue elements, which takes care of the buffering of the data in
  * the pipeline. 
@@ -60,7 +60,7 @@
  * \copydoc gstshvideosinkproperties
  *
  * \section sink-pads Pads
- * \copydoc gst_shvideosink_sink_template_factory
+ * \copydoc gst_sh_video_sink_sink_template_factory
  * 
  * \section sink-license Licensing
  * This library is free software; you can redistribute it and/or
@@ -87,11 +87,14 @@
 #include "gstshvideosink.h"
 #include "gstshvideobuffer.h"
 
-GST_DEBUG_CATEGORY_STATIC (gst_shvideosink_debug);
-#define GST_CAT_DEFAULT gst_shvideosink_debug
+GST_DEBUG_CATEGORY_STATIC (gst_sh_video_sink_debug);
+#define GST_CAT_DEFAULT gst_sh_video_sink_debug
+
+//Minimum size for the output width/height
+#define MIN_W_AND_H 16
 
 /**
- * \var gst_shvideosink_sink_template_factory
+ * \var gst_sh_video_sink_sink_template_factory
  * Name: sink \n
  * Direction: sink \n
  * Available: always \n
@@ -99,7 +102,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_shvideosink_debug);
  * - video/x-raw-yuv, format=(fourcc)NV12, width=(int)[16,2560], 
  *   height=(int)[16,1920], framerate=(fraction)[1,30]
  */
-static GstStaticPadTemplate gst_shvideosink_sink_template_factory =
+static GstStaticPadTemplate gst_sh_video_sink_sink_template_factory =
 GST_STATIC_PAD_TEMPLATE ("sink",
 		GST_PAD_SINK,
 		GST_PAD_ALWAYS,
@@ -151,26 +154,26 @@ static GstVideoSinkClass *parent_class = NULL;
  * Initialize SH hardware video sink
  * @param klass Gstreamer element class
  */
-static void gst_shvideosink_base_init (gpointer klass);
+static void gst_sh_video_sink_base_init (gpointer klass);
 
 /** 
  * Dispose sink
  * @param object Gstreamer element class
  */
-static void gst_shvideosink_dispose (GObject * object);
+static void gst_sh_video_sink_dispose (GObject * object);
 
 /** 
  * Initialize the class
  * @param klass Gstreamer SH video sink class
  */
-static void gst_shvideosink_class_init (GstshvideosinkClass * klass);
+static void gst_sh_video_sink_class_init (GstSHVideoSinkClass * klass);
 
 /** 
  * Initialize the sink
  * @param sink Gstreamer SH sink element
  * @param gklass Gstreamer SH video sink class
  */
-static void gst_shvideosink_init (Gstshvideosink * sink, GstshvideosinkClass * gklass);
+static void gst_sh_video_sink_init (GstSHVideoSink * sink, GstSHVideoSinkClass * gklass);
 
 /** 
  * The function will set the properties of the sink
@@ -179,7 +182,7 @@ static void gst_shvideosink_init (Gstshvideosink * sink, GstshvideosinkClass * g
  * @param value The value of the prioperty
  * @param pspec not used in fuction
  */
-static void gst_shvideosink_set_property (GObject *object, 
+static void gst_sh_video_sink_set_property (GObject *object, 
 					  guint prop_id, const GValue *value, 
 					  GParamSpec * pspec);
 
@@ -190,7 +193,7 @@ static void gst_shvideosink_set_property (GObject *object,
  * @param value The value of the property
  * @param pspec not used in fuction
  */
-static void gst_shvideosink_get_property (GObject * object, guint prop_id,
+static void gst_sh_video_sink_get_property (GObject * object, guint prop_id,
 					  GValue * value, GParamSpec * pspec);
 
 /**
@@ -198,20 +201,20 @@ static void gst_shvideosink_get_property (GObject * object, guint prop_id,
  * here.
  * \var bsink GstBaseSink element
  */
-static gboolean gst_shvideosink_start (GstBaseSink *bsink);
+static gboolean gst_sh_video_sink_start (GstBaseSink *bsink);
 
 /**
  * From GstBaseSink. All non stream depending resources are released
  * here.
  * \var bsink GstBaseSink element
  */
-static gboolean gst_shvideosink_stop (GstBaseSink *sink);
+static gboolean gst_sh_video_sink_stop (GstBaseSink *sink);
 
 /**
  * Returns the caps fron sink template.
  * \var bsink GstBaseSink element
  */
-static GstCaps* gst_shvideosink_getcaps (GstBaseSink * bsink);
+static GstCaps* gst_sh_video_sink_getcaps (GstBaseSink * bsink);
 
 /** 
  * Initialize the sink pad 
@@ -219,7 +222,7 @@ static GstCaps* gst_shvideosink_getcaps (GstBaseSink * bsink);
  * @param caps The capabilities of the video to play
  * @return returns true if the video capatilies are supported and the video can be played
  */
-static gboolean gst_shvideosink_setcaps (GstBaseSink * bsink, GstCaps * caps);
+static gboolean gst_sh_video_sink_setcaps (GstBaseSink * bsink, GstCaps * caps);
 
 /**
  * From GstBaseSink. Here we can control when frames are played.
@@ -228,16 +231,16 @@ static gboolean gst_shvideosink_setcaps (GstBaseSink * bsink, GstCaps * caps);
  * \var start Starting time of the frame will be returned here.
  * \var end Ending time of the frame will be returned here.
  */
-static void gst_shvideosink_get_times (GstBaseSink * bsink, GstBuffer * buf,
+static void gst_sh_video_sink_get_times (GstBaseSink * bsink, GstBuffer * buf,
 				       GstClockTime * start, 
 				       GstClockTime * end);
 
-static GstFlowReturn gst_shvideosink_show_frame (GstBaseSink * bsink, 
+static GstFlowReturn gst_sh_video_sink_show_frame (GstBaseSink * bsink, 
 						 GstBuffer * buf);
 
 /* BUG: Commented out because of a possible bug in GStreamer
 static GstFlowReturn 
-gst_shvideosink_buffer_alloc (GstBaseSink *bsink, guint64 offset, guint size,
+gst_sh_video_sink_buffer_alloc (GstBaseSink *bsink, guint64 offset, guint size,
 										 GstCaps *caps, GstBuffer **buf);
 */
 
@@ -245,7 +248,7 @@ gst_shvideosink_buffer_alloc (GstBaseSink *bsink, guint64 offset, guint size,
 
 
 GType
-gst_shvideosink_get_type (void)
+gst_sh_video_sink_get_type (void)
 {
 	static GType object_type = 0;
 
@@ -253,15 +256,15 @@ gst_shvideosink_get_type (void)
 	{
 		static const GTypeInfo object_info = 
 		{
-			sizeof (GstshvideosinkClass),
-			gst_shvideosink_base_init,
+			sizeof (GstSHVideoSinkClass),
+			gst_sh_video_sink_base_init,
 			NULL,
-			(GClassInitFunc) gst_shvideosink_class_init,
+			(GClassInitFunc) gst_sh_video_sink_class_init,
 			NULL,
 			NULL,
-			sizeof (Gstshvideosink),
+			sizeof (GstSHVideoSink),
 			0,
-			(GInstanceInitFunc) gst_shvideosink_init
+			(GInstanceInitFunc) gst_sh_video_sink_init
 		};
 
 		object_type = g_type_register_static (GST_TYPE_VIDEO_SINK, 
@@ -273,7 +276,7 @@ gst_shvideosink_get_type (void)
 }
 
 static void
-gst_shvideosink_base_init (gpointer g_class)
+gst_sh_video_sink_base_init (gpointer g_class)
 {
 	static const GstElementDetails plugin_details =
 		GST_ELEMENT_DETAILS ("SuperH video sink",
@@ -284,14 +287,14 @@ gst_shvideosink_base_init (gpointer g_class)
 	GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
 
 	gst_element_class_add_pad_template (element_class,
-				gst_static_pad_template_get (&gst_shvideosink_sink_template_factory));
+				gst_static_pad_template_get (&gst_sh_video_sink_sink_template_factory));
 	gst_element_class_set_details (element_class, &plugin_details);
 }
 
 static void
-gst_shvideosink_dispose (GObject * object)
+gst_sh_video_sink_dispose (GObject * object)
 {
-	Gstshvideosink *sink = GST_SHVIDEOSINK (object);
+	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (object);
 
 	GST_LOG_OBJECT(sink,"%s called\n",__FUNCTION__);  
 
@@ -299,7 +302,7 @@ gst_shvideosink_dispose (GObject * object)
 }
 
 static void
-gst_shvideosink_class_init (GstshvideosinkClass * klass)
+gst_sh_video_sink_class_init (GstSHVideoSinkClass * klass)
 {
 	GObjectClass *gobject_class;
 	GstElementClass *gstelement_class;
@@ -309,15 +312,15 @@ gst_shvideosink_class_init (GstshvideosinkClass * klass)
 	gstelement_class = (GstElementClass *) klass;
 	gstbasesink_class = (GstBaseSinkClass *) klass;
 
-	GST_DEBUG_CATEGORY_INIT (gst_shvideosink_debug, 
+	GST_DEBUG_CATEGORY_INIT (gst_sh_video_sink_debug, 
 				 "gst-sh-mobile-sink",
 				 0, "Player for raw video streams");
 
 	parent_class = g_type_class_peek_parent (klass);
 
-	gobject_class->dispose = GST_DEBUG_FUNCPTR (gst_shvideosink_dispose);
-	gobject_class->set_property = gst_shvideosink_set_property;
-	gobject_class->get_property = gst_shvideosink_get_property;
+	gobject_class->dispose = GST_DEBUG_FUNCPTR (gst_sh_video_sink_dispose);
+	gobject_class->set_property = gst_sh_video_sink_set_property;
+	gobject_class->get_property = gst_sh_video_sink_get_property;
 
 	g_object_class_install_property (gobject_class, PROP_WIDTH,
 			g_param_spec_uint ("width", "Playback width", 
@@ -348,21 +351,21 @@ gst_shvideosink_class_init (GstshvideosinkClass * klass)
 				 "Output zoom level(original(default)/full/double/half)",
 				 NULL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-	gstbasesink_class->set_caps = GST_DEBUG_FUNCPTR (gst_shvideosink_setcaps);
-	gstbasesink_class->get_caps = GST_DEBUG_FUNCPTR (gst_shvideosink_getcaps);
+	gstbasesink_class->set_caps = GST_DEBUG_FUNCPTR (gst_sh_video_sink_setcaps);
+	gstbasesink_class->get_caps = GST_DEBUG_FUNCPTR (gst_sh_video_sink_getcaps);
 	gstbasesink_class->get_times =
-			GST_DEBUG_FUNCPTR (gst_shvideosink_get_times);
-	gstbasesink_class->preroll = GST_DEBUG_FUNCPTR (gst_shvideosink_show_frame);
-	gstbasesink_class->render = GST_DEBUG_FUNCPTR (gst_shvideosink_show_frame);
-	gstbasesink_class->start = GST_DEBUG_FUNCPTR (gst_shvideosink_start);
-	gstbasesink_class->stop = GST_DEBUG_FUNCPTR (gst_shvideosink_stop);
+			GST_DEBUG_FUNCPTR (gst_sh_video_sink_get_times);
+	gstbasesink_class->preroll = GST_DEBUG_FUNCPTR (gst_sh_video_sink_show_frame);
+	gstbasesink_class->render = GST_DEBUG_FUNCPTR (gst_sh_video_sink_show_frame);
+	gstbasesink_class->start = GST_DEBUG_FUNCPTR (gst_sh_video_sink_start);
+	gstbasesink_class->stop = GST_DEBUG_FUNCPTR (gst_sh_video_sink_stop);
 
 	// Commented out because of a bug
-	//  gstbasesink_class->buffer_alloc = GST_DEBUG_FUNCPTR (gst_shvideosink_buffer_alloc);
+	//  gstbasesink_class->buffer_alloc = GST_DEBUG_FUNCPTR (gst_sh_video_sink_buffer_alloc);
 }
 
 static void
-gst_shvideosink_init (Gstshvideosink * sink, GstshvideosinkClass * gklass)
+gst_sh_video_sink_init (GstSHVideoSink * sink, GstSHVideoSinkClass * gklass)
 {
 	GST_LOG_OBJECT(sink,"%s called",__FUNCTION__);
 
@@ -381,10 +384,10 @@ gst_shvideosink_init (Gstshvideosink * sink, GstshvideosinkClass * gklass)
 
 
 static void
-gst_shvideosink_set_property (GObject * object, guint prop_id,
+gst_sh_video_sink_set_property (GObject * object, guint prop_id,
 			      const GValue * value, GParamSpec * pspec)
 {
-	Gstshvideosink *sink = GST_SHVIDEOSINK (object);
+	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (object);
 	const gchar* string;
 	
 	GST_LOG_OBJECT(sink,"%s called",__FUNCTION__);
@@ -442,10 +445,10 @@ gst_shvideosink_set_property (GObject * object, guint prop_id,
 }
 
 static void
-gst_shvideosink_get_property (GObject * object, guint prop_id,
+gst_sh_video_sink_get_property (GObject * object, guint prop_id,
 			      GValue * value, GParamSpec * pspec)
 {
-	Gstshvideosink *sink = GST_SHVIDEOSINK (object);
+	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (object);
 
 	GST_DEBUG_OBJECT(sink,"%s called",__FUNCTION__);
 
@@ -507,9 +510,9 @@ gst_shvideosink_get_property (GObject * object, guint prop_id,
 }
 
 static gboolean 
-gst_shvideosink_start (GstBaseSink *bsink)
+gst_sh_video_sink_start (GstBaseSink *bsink)
 {
-	Gstshvideosink *sink = GST_SHVIDEOSINK (bsink);
+	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (bsink);
 	
 	GST_DEBUG_OBJECT(sink,"START, opening devices.");
 
@@ -536,9 +539,9 @@ gst_shvideosink_start (GstBaseSink *bsink)
 }
 
 static gboolean 
-gst_shvideosink_stop (GstBaseSink *bsink)
+gst_sh_video_sink_stop (GstBaseSink *bsink)
 {
-	Gstshvideosink *sink = GST_SHVIDEOSINK (bsink);
+	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (bsink);
 
 	GST_DEBUG_OBJECT(sink,"STOP, closing devices.");
 	clear_framebuffer(&sink->fb);
@@ -547,9 +550,9 @@ gst_shvideosink_stop (GstBaseSink *bsink)
 }
 
 static GstCaps *
-gst_shvideosink_getcaps (GstBaseSink * bsink)
+gst_sh_video_sink_getcaps (GstBaseSink * bsink)
 {
-	Gstshvideosink *sink = GST_SHVIDEOSINK (bsink);
+	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (bsink);
 
 	GST_LOG_OBJECT(sink,"%s called",__FUNCTION__);
 
@@ -557,10 +560,10 @@ gst_shvideosink_getcaps (GstBaseSink * bsink)
 }
 
 static gboolean
-gst_shvideosink_setcaps (GstBaseSink * bsink, GstCaps * caps)
+gst_sh_video_sink_setcaps (GstBaseSink * bsink, GstCaps * caps)
 {
 	GstStructure *structure = NULL;
-	Gstshvideosink *sink = GST_SHVIDEOSINK (bsink);
+	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (bsink);
 
 	GST_DEBUG_OBJECT(sink,"%s called",__FUNCTION__);
 
@@ -630,7 +633,16 @@ gst_shvideosink_setcaps (GstBaseSink * bsink, GstCaps * caps)
 	}
 	if(sink->dst_height > sink->fb.vinfo.yres)
 	{
-		sink->dst_height = sink->fb.vinfo.xres;
+		sink->dst_height = sink->fb.vinfo.yres;
+	}
+
+	if(sink->dst_width < MIN_W_AND_H)
+	{
+		sink->dst_width = MIN_W_AND_H;
+	}
+	if(sink->dst_height < MIN_W_AND_H)
+	{
+		sink->dst_height = MIN_W_AND_H;
 	}
 
 	if(!setup_veu(&sink->veu, sink->video_sink.width, 
@@ -664,10 +676,10 @@ gst_shvideosink_setcaps (GstBaseSink * bsink, GstCaps * caps)
 }
 
 static void
-gst_shvideosink_get_times (GstBaseSink * bsink, GstBuffer * buf,
+gst_sh_video_sink_get_times (GstBaseSink * bsink, GstBuffer * buf,
 			   GstClockTime * start, GstClockTime * end)
 {
-	Gstshvideosink *sink = GST_SHVIDEOSINK (bsink);
+	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (bsink);
 
 	GST_LOG_OBJECT(sink,"Times requested. Buffer timestamp: %dms duration:%dms",
 		 GST_TIME_AS_MSECONDS(GST_BUFFER_TIMESTAMP (buf)),
@@ -712,20 +724,20 @@ gst_shvideosink_get_times (GstBaseSink * bsink, GstBuffer * buf,
 }
 
 static GstFlowReturn
-gst_shvideosink_show_frame (GstBaseSink * bsink, GstBuffer * buf)
+gst_sh_video_sink_show_frame (GstBaseSink * bsink, GstBuffer * buf)
 {
-	Gstshvideosink *sink = GST_SHVIDEOSINK (bsink);
+	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (bsink);
 
 	GST_LOG_OBJECT(sink,"%s called",__FUNCTION__);
 
 	g_return_val_if_fail (buf != NULL, GST_FLOW_ERROR);
 
-	if(GST_IS_SHVIDEOBUFFER(buf))
+	if(GST_IS_SH_VIDEO_BUFFER(buf))
 	{
 		GST_LOG_OBJECT(sink,"Got own buffer with HW adrresses");
 			veu_blit(&sink->veu, 
-			(unsigned long)GST_SHVIDEOBUFFER_Y_DATA(buf), 
-			(unsigned long)GST_SHVIDEOBUFFER_C_DATA(buf));
+			(unsigned long)GST_SH_VIDEO_BUFFER_Y_DATA(buf), 
+			(unsigned long)GST_SH_VIDEO_BUFFER_C_DATA(buf));
 	}
 	else
 	{
@@ -742,12 +754,12 @@ gst_shvideosink_show_frame (GstBaseSink * bsink, GstBuffer * buf)
 
 /*
 static GstFlowReturn 
-gst_shvideosink_buffer_alloc (GstBaseSink *bsink, guint64 offset, guint size,
+gst_sh_video_sink_buffer_alloc (GstBaseSink *bsink, guint64 offset, guint size,
 										 GstCaps *caps, GstBuffer **buf)
 {
 	// BUG: THERE IS SOMETHING WRONG IN HERE. offset and size get corrupted
 	GstStructure *structure = NULL;
-	Gstshvideosink *sink = GST_SHVIDEOSINK (bsink);
+	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (bsink);
 	gint width, height;
 
 	GST_LOG_OBJECT(sink,"Buffer requested. Offset: %d, size: %d",offset,size);
@@ -769,13 +781,13 @@ gst_shvideosink_buffer_alloc (GstBaseSink *bsink, guint64 offset, guint size,
 
 	GST_LOG_OBJECT(sink,"Frame width: %d heigth: %d",width,height);
 
-	*buf = (GstBuffer *) gst_mini_object_new (GST_TYPE_SHVIDEOBUFFER);
+	*buf = (GstBuffer *) gst_mini_object_new (GST_TYPE_SH_VIDEO_BUFFER);
 	GST_BUFFER_DATA(buf) = GST_BUFFER_MALLOCDATA(buf) = sink->veu.mem.iomem;    
 	GST_BUFFER_SIZE(buf) = size;    
-	GST_SHVIDEOBUFFER_Y_DATA(buf) = (guint8*)sink->veu.mem.address; 
-	GST_SHVIDEOBUFFER_Y_SIZE(buf) = width*height; 
-	GST_SHVIDEOBUFFER_C_DATA(buf) = (guint8*)(sink->veu.mem.address+GST_SHVIDEOBUFFER_Y_SIZE(buf)); 
-	GST_SHVIDEOBUFFER_C_SIZE(buf) = GST_SHVIDEOBUFFER_Y_SIZE(buf)/2; 
+	GST_SH_VIDEO_BUFFER_Y_DATA(buf) = (guint8*)sink->veu.mem.address; 
+	GST_SH_VIDEO_BUFFER_Y_SIZE(buf) = width*height; 
+	GST_SH_VIDEO_BUFFER_C_DATA(buf) = (guint8*)(sink->veu.mem.address+GST_SH_VIDEO_BUFFER_Y_SIZE(buf)); 
+	GST_SH_VIDEO_BUFFER_C_SIZE(buf) = GST_SH_VIDEO_BUFFER_Y_SIZE(buf)/2; 
 
 	return GST_FLOW_OK;
 }

@@ -31,16 +31,16 @@
 #include "cntlfile/ControlFileUtil.h"
 
 G_BEGIN_DECLS
-#define GST_TYPE_SHVIDEOENC \
-	(gst_shvideo_enc_get_type())
-#define GST_SHVIDEOENC(obj) \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_SHVIDEOENC,GstshvideoEnc))
-#define GST_SHVIDEOENC_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_SHVIDEOENC,GstshvideoEnc))
-#define GST_IS_SHVIDEOENC(obj) \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_SHVIDEOENC))
-#define GST_IS_SHVIDEOENC_CLASS(obj) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_SHVIDEOENC))
+#define GST_TYPE_SH_VIDEO_ENC \
+	(gst_sh_video_enc_get_type())
+#define GST_SH_VIDEO_ENC(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_SH_VIDEO_ENC,GstshvideoEnc))
+#define GST_SH_VIDEO_ENC_CLASS(klass) \
+	(G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_SH_VIDEO_ENC,GstshvideoEnc))
+#define GST_IS_SH_VIDEO_ENC(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_SH_VIDEO_ENC))
+#define GST_IS_SH_VIDEO_ENC_CLASS(obj) \
+	(G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_SH_VIDEO_ENC))
 typedef struct _GstshvideoEnc GstshvideoEnc;
 typedef struct _GstshvideoEncClass GstshvideoEncClass;
 
@@ -90,26 +90,26 @@ struct _GstshvideoEncClass
 * @return object type
 */
 
-GType gst_shvideo_enc_get_type (void);
+GType gst_sh_video_enc_get_type (void);
 
 /** Initializes the SH Hardware encoder
 * @param shvideoenc encoder object
 */
 
-void gst_shvideo_enc_init_encoder(GstshvideoEnc * shvideoenc);
+void gst_sh_video_enc_init_encoder(GstshvideoEnc * shvideoenc);
 
 /** Reads the capabilities of the peer element behind source pad
 * @param shvideoenc encoder object
 */
 
-void gst_shvideoenc_read_src_caps(GstshvideoEnc * shvideoenc);
+void gst_sh_video_enc_read_src_caps(GstshvideoEnc * shvideoenc);
 
 /** Sets the capabilities of the source pad
 * @param shvideoenc encoder object
 * @return TRUE if the capabilities could be set, otherwise FALSE
 */
 
-gboolean gst_shvideoenc_set_src_caps(GstshvideoEnc * shvideoenc);
+gboolean gst_sh_video_enc_set_src_caps(GstshvideoEnc * shvideoenc);
 
 /** Launches the encoder in an own thread
 		@param data encoder object

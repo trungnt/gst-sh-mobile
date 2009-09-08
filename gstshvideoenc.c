@@ -17,8 +17,8 @@
  * gst-launch filesrc location=test.yuv ! gst-sh-mobile-enc cntl-file=m4v.ctl
  * ! filesink location=test.m4v
  * \endcode
- * Very simple pipeline where filesrc and filesink elements are used to read
- * the raw data and write the encoded data. In this pipeline the
+ * This is a very simple pipeline where filesrc and filesink elements are used
+ * to read the raw data and write the encoded data. In this pipeline the
  * gst-sh-mobile-enc operates in pull mode, so it is the element which drives the
  * data flow.
  *
@@ -31,12 +31,12 @@
  * 
  * \image html encoder_example.jpeg
  * 
- * In this example, web cam is used as the streaming source via v4l2src element.
- * the webcam in this example provides jpeg -image data. This pipeline works in
+ * In this example, webcam is used as the streaming source via v4l2src element.
+ * the webcam in this example provides jpeg image data. This pipeline works in
  * push mode, so we need to specify the stream properties using static caps after
  * the v4l2src element. jpegdec decodes the jpeg images and ffmpegcolorspace is
  * used to convert the image data for the encoder. Again, filesink is used to
- * write the encoded video stream to a file.
+ * write the encoded video stream into a file.
  *
  * \subsection enc-examples-3 Encoding from a webcam to network
  * \code
@@ -45,9 +45,9 @@
  * cntl_file=KMp4_000.ctl ! rtpmp4vpay ! udpsink host=192.168.10.10 port=5000
  * sync=false 
  * \endcode
- * This line is similar to the one above. Only this time the video is not stored
- * in a file but sent over the network using udpsink -element. Before sending
- * The video is packed into RTP frame using rtpmp4vpay -element.
+ * This line is similar to the one above. At this time, the video is not stored
+ * in a file but sent over the network using udpsink -element. Before sending,
+ * the video is packed into RTP frame using rtpmp4vpay -element.
  *
  * With following line it is possible to playback the video in PC:
  * \code
@@ -205,32 +205,32 @@ enum gstshvideoencproperties
     @param data user data pointer, unused in the function
 */
 
-static void gst_shvideo_enc_init_class (gpointer g_class, gpointer data);
+static void gst_sh_video_enc_init_class (gpointer g_class, gpointer data);
 
 /** Initialize SH hardware video encoder
     @param klass Gstreamer element class
 */
 
-static void gst_shvideo_enc_base_init (gpointer klass);
+static void gst_sh_video_enc_base_init (gpointer klass);
  
 /** Dispose encoder
     @param object Gstreamer element class
 */
 
-static void gst_shvideo_enc_dispose (GObject * object);
+static void gst_sh_video_enc_dispose (GObject * object);
 
 /** Initialize the class for encoder
     @param klass Gstreamer SH video encoder class
 */
 
-static void gst_shvideo_enc_class_init (GstshvideoEncClass *klass);
+static void gst_sh_video_enc_class_init (GstshvideoEncClass *klass);
 
 /** Initialize the encoder
     @param shvideoenc Gstreamer SH video element
     @param gklass Gstreamer SH video encode class
 */
 
-static void gst_shvideo_enc_init (GstshvideoEnc *shvideoenc,
+static void gst_sh_video_enc_init (GstshvideoEnc *shvideoenc,
 				  GstshvideoEncClass *gklass);
 /** Event handler for encoder sink events
     @param pad Gstreamer sink pad
@@ -238,7 +238,7 @@ static void gst_shvideo_enc_init (GstshvideoEnc *shvideoenc,
     @return returns true if the event can be handled, else false
 */
 
-static gboolean gst_shvideo_enc_sink_event (GstPad * pad, GstEvent * event);
+static gboolean gst_sh_video_enc_sink_event (GstPad * pad, GstEvent * event);
 
 /** Initialize the encoder sink pad 
     @param pad Gstreamer sink pad
@@ -247,7 +247,7 @@ static gboolean gst_shvideo_enc_sink_event (GstPad * pad, GstEvent * event);
             be decoded, else false
 */
 
-static gboolean gst_shvideoenc_setcaps (GstPad * pad, GstCaps * caps);
+static gboolean gst_sh_video_enc_setcaps (GstPad * pad, GstCaps * caps);
 
 /** Handles the activation event. Activates the element in pull mode, if it
     is supported.
@@ -255,7 +255,7 @@ static gboolean gst_shvideoenc_setcaps (GstPad * pad, GstCaps * caps);
     @return returns true if the event handled without errors, else false
 */
 
-static gboolean	gst_shvideo_enc_activate (GstPad *pad);
+static gboolean	gst_sh_video_enc_activate (GstPad *pad);
 
 /** Function to start the pad task
     @param pad Gstreamer sink pad
@@ -263,7 +263,7 @@ static gboolean	gst_shvideo_enc_activate (GstPad *pad);
     @return returns true if the event handled without errors, else false
 */
 
-static gboolean	gst_shvideo_enc_activate_pull (GstPad *pad, gboolean active);
+static gboolean	gst_sh_video_enc_activate_pull (GstPad *pad, gboolean active);
 
 /** The encoder function and launches the thread if needed
     @param pad Gstreamer sink pad
@@ -271,13 +271,13 @@ static gboolean	gst_shvideo_enc_activate_pull (GstPad *pad, gboolean active);
     @return returns GST_FLOW_OK if the function runs without errors
 */
 
-static GstFlowReturn gst_shvideo_enc_chain (GstPad *pad, GstBuffer *buffer);
+static GstFlowReturn gst_sh_video_enc_chain (GstPad *pad, GstBuffer *buffer);
 
 /** The encoder sink pad task
     @param enc Gstreamer SH video encoder
 */
 
-static void gst_shvideo_enc_loop (GstshvideoEnc *enc);
+static void gst_sh_video_enc_loop (GstshvideoEnc *enc);
 
 /** The function will set the user defined control file name value for decoder
     @param object The object where to get Gstreamer SH video Encoder object
@@ -286,7 +286,7 @@ static void gst_shvideo_enc_loop (GstshvideoEnc *enc);
     @param pspec not used in fuction
 */
 
-static void gst_shvideo_enc_set_property (GObject *object, 
+static void gst_sh_video_enc_set_property (GObject *object, 
 					  guint prop_id, const GValue *value, 
 					  GParamSpec * pspec);
 
@@ -297,7 +297,7 @@ static void gst_shvideo_enc_set_property (GObject *object,
     @param pspec not used in fuction
 */
 
-static void gst_shvideo_enc_get_property (GObject * object, guint prop_id,
+static void gst_sh_video_enc_get_property (GObject * object, guint prop_id,
 					  GValue * value, GParamSpec * pspec);
 
 /** The encoder sink event handler and calls sink pad push event
@@ -306,7 +306,7 @@ static void gst_shvideo_enc_get_property (GObject * object, guint prop_id,
     @returns Returns the value of gst_pad_push_event()
 */
 
-static gboolean gst_shvideo_enc_sink_event (GstPad * pad, GstEvent * event);
+static gboolean gst_sh_video_enc_sink_event (GstPad * pad, GstEvent * event);
 
 /** Gstreamer source pad query 
     @param pad Gstreamer source pad
@@ -314,7 +314,7 @@ static gboolean gst_shvideo_enc_sink_event (GstPad * pad, GstEvent * event);
     @returns Returns the value of gst_pad_query_default
 */
 
-static gboolean gst_shvideo_enc_src_query (GstPad * pad, GstQuery * query);
+static gboolean gst_sh_video_enc_src_query (GstPad * pad, GstQuery * query);
 
 /** Callback function for the encoder input
     @param encoder shcodecs encoder
@@ -322,7 +322,7 @@ static gboolean gst_shvideo_enc_src_query (GstPad * pad, GstQuery * query);
     @return 0 if encoder should continue. 1 if encoder should pause.
 */
 
-static int gst_shvideo_enc_get_input(SHCodecs_Encoder * encoder, void *user_data);
+static int gst_sh_video_enc_get_input(SHCodecs_Encoder * encoder, void *user_data);
 
 /** Callback function for the encoder output
     @param encoder shcodecs encoder
@@ -332,35 +332,35 @@ static int gst_shvideo_enc_get_input(SHCodecs_Encoder * encoder, void *user_data
     @return 0 if encoder should continue. 1 if encoder should pause.
 */
 
-static int gst_shvideo_enc_write_output(SHCodecs_Encoder * encoder,
+static int gst_sh_video_enc_write_output(SHCodecs_Encoder * encoder,
 					unsigned char *data, int length, void *user_data);
 
 static GstStateChangeReturn
-gst_shvideo_enc_change_state (GstElement *element, GstStateChange transition);
+gst_sh_video_enc_change_state (GstElement *element, GstStateChange transition);
 
 
 static void
-gst_shvideo_enc_init_class (gpointer g_class, gpointer data)
+gst_sh_video_enc_init_class (gpointer g_class, gpointer data)
 {
   parent_class = g_type_class_peek_parent (g_class);
-  gst_shvideo_enc_class_init ((GstshvideoEncClass *) g_class);
+  gst_sh_video_enc_class_init ((GstshvideoEncClass *) g_class);
 }
 
-GType gst_shvideo_enc_get_type (void)
+GType gst_sh_video_enc_get_type (void)
 {
   static GType object_type = 0;
 
   if (object_type == 0) {
     static const GTypeInfo object_info = {
       sizeof (GstshvideoEncClass),
-      gst_shvideo_enc_base_init,
+      gst_sh_video_enc_base_init,
       NULL,
-      gst_shvideo_enc_init_class,
+      gst_sh_video_enc_init_class,
       NULL,
       NULL,
       sizeof (GstshvideoEnc),
       0,
-      (GInstanceInitFunc) gst_shvideo_enc_init
+      (GInstanceInitFunc) gst_sh_video_enc_init
     };
     
     object_type =
@@ -372,7 +372,7 @@ GType gst_shvideo_enc_get_type (void)
 }
 
 static void
-gst_shvideo_enc_base_init (gpointer klass)
+gst_sh_video_enc_base_init (gpointer klass)
 {
   static const GstElementDetails plugin_details =
     GST_ELEMENT_DETAILS ("SH hardware video encoder",
@@ -389,9 +389,9 @@ gst_shvideo_enc_base_init (gpointer klass)
 }
 
 static void
-gst_shvideo_enc_dispose (GObject * object)
+gst_sh_video_enc_dispose (GObject * object)
 {
-  GstshvideoEnc *shvideoenc = GST_SHVIDEOENC (object);
+  GstshvideoEnc *shvideoenc = GST_SH_VIDEO_ENC (object);
 
   if (shvideoenc->encoder!=NULL) {
     shcodecs_encoder_close(shvideoenc->encoder);
@@ -406,7 +406,7 @@ gst_shvideo_enc_dispose (GObject * object)
 }
 
 static void
-gst_shvideo_enc_class_init (GstshvideoEncClass * klass)
+gst_sh_video_enc_class_init (GstshvideoEncClass * klass)
 {
   GObjectClass *gobject_class;
   GstElementClass *gstelement_class;
@@ -414,9 +414,9 @@ gst_shvideo_enc_class_init (GstshvideoEncClass * klass)
   gobject_class = (GObjectClass *) klass;
   gstelement_class = (GstElementClass *) klass;
 
-  gobject_class->dispose = gst_shvideo_enc_dispose;
-  gobject_class->set_property = gst_shvideo_enc_set_property;
-  gobject_class->get_property = gst_shvideo_enc_get_property;
+  gobject_class->dispose = gst_sh_video_enc_dispose;
+  gobject_class->set_property = gst_sh_video_enc_set_property;
+  gobject_class->get_property = gst_sh_video_enc_get_property;
 
   GST_DEBUG_CATEGORY_INIT (gst_sh_mobile_debug, "gst-sh-mobile-enc",
       0, "Encoder for H264/MPEG4 streams");
@@ -426,11 +426,11 @@ gst_shvideo_enc_class_init (GstshvideoEncClass * klass)
 			"Location of the file including encoding parameters", 
 			   NULL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gstelement_class->change_state = gst_shvideo_enc_change_state;
+  gstelement_class->change_state = gst_sh_video_enc_change_state;
 }
 
 static void
-gst_shvideo_enc_init (GstshvideoEnc * shvideoenc,
+gst_sh_video_enc_init (GstshvideoEnc * shvideoenc,
     GstshvideoEncClass * gklass)
 {
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (shvideoenc);
@@ -443,19 +443,19 @@ gst_shvideo_enc_init (GstshvideoEnc * shvideoenc,
 
   gst_element_add_pad (GST_ELEMENT (shvideoenc), shvideoenc->sinkpad);
 
-  gst_pad_set_setcaps_function (shvideoenc->sinkpad, gst_shvideoenc_setcaps);
-  gst_pad_set_activate_function (shvideoenc->sinkpad, gst_shvideo_enc_activate);
+  gst_pad_set_setcaps_function (shvideoenc->sinkpad, gst_sh_video_enc_setcaps);
+  gst_pad_set_activate_function (shvideoenc->sinkpad, gst_sh_video_enc_activate);
   gst_pad_set_activatepull_function (shvideoenc->sinkpad,
-      gst_shvideo_enc_activate_pull);
-  gst_pad_set_event_function(shvideoenc->sinkpad, gst_shvideo_enc_sink_event);
-  gst_pad_set_chain_function(shvideoenc->sinkpad, gst_shvideo_enc_chain);
+      gst_sh_video_enc_activate_pull);
+  gst_pad_set_event_function(shvideoenc->sinkpad, gst_sh_video_enc_sink_event);
+  gst_pad_set_chain_function(shvideoenc->sinkpad, gst_sh_video_enc_chain);
   shvideoenc->srcpad =
       gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
           "src"), "src");
   gst_pad_use_fixed_caps (shvideoenc->srcpad);
 
   gst_pad_set_query_function (shvideoenc->srcpad,
-      GST_DEBUG_FUNCPTR (gst_shvideo_enc_src_query));
+      GST_DEBUG_FUNCPTR (gst_sh_video_enc_src_query));
 
   gst_element_add_pad (GST_ELEMENT (shvideoenc), shvideoenc->srcpad);
 
@@ -481,10 +481,10 @@ gst_shvideo_enc_init (GstshvideoEnc * shvideoenc,
 }
 
 static void
-gst_shvideo_enc_set_property (GObject * object, guint prop_id,
+gst_sh_video_enc_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
-  GstshvideoEnc *shvideoenc = GST_SHVIDEOENC (object);
+  GstshvideoEnc *shvideoenc = GST_SH_VIDEO_ENC (object);
   
   switch (prop_id) 
   {
@@ -502,10 +502,10 @@ gst_shvideo_enc_set_property (GObject * object, guint prop_id,
 }
 
 static void
-gst_shvideo_enc_get_property (GObject * object, guint prop_id,
+gst_sh_video_enc_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec)
 {
-  GstshvideoEnc *shvideoenc = GST_SHVIDEOENC (object);
+  GstshvideoEnc *shvideoenc = GST_SH_VIDEO_ENC (object);
 
   switch (prop_id) 
   {
@@ -520,7 +520,7 @@ gst_shvideo_enc_get_property (GObject * object, guint prop_id,
 }
 
 static gboolean 
-gst_shvideo_enc_sink_event (GstPad * pad, GstEvent * event)
+gst_sh_video_enc_sink_event (GstPad * pad, GstEvent * event)
 {
   GstshvideoEnc *enc = (GstshvideoEnc *) (GST_OBJECT_PARENT (pad));  
 
@@ -530,7 +530,7 @@ gst_shvideo_enc_sink_event (GstPad * pad, GstEvent * event)
 }
 
 static gboolean
-gst_shvideoenc_setcaps (GstPad * pad, GstCaps * caps)
+gst_sh_video_enc_setcaps (GstPad * pad, GstCaps * caps)
 {
   gboolean ret;
   GstStructure *structure;
@@ -554,12 +554,12 @@ gst_shvideoenc_setcaps (GstPad * pad, GstCaps * caps)
 	return ret;
   }
 
-  gst_shvideoenc_read_src_caps(enc);
-  gst_shvideo_enc_init_encoder(enc);
+  gst_sh_video_enc_read_src_caps(enc);
+  gst_sh_video_enc_init_encoder(enc);
 
   if(!gst_caps_is_any(enc->out_caps))
   {
-    ret = gst_shvideoenc_set_src_caps(enc);
+    ret = gst_sh_video_enc_set_src_caps(enc);
   }
     
   if(ret) {
@@ -570,7 +570,7 @@ gst_shvideoenc_setcaps (GstPad * pad, GstCaps * caps)
 }
 
 void
-gst_shvideoenc_read_src_caps(GstshvideoEnc * shvideoenc)
+gst_sh_video_enc_read_src_caps(GstshvideoEnc * shvideoenc)
 {
   GstStructure *structure;
 
@@ -593,7 +593,7 @@ gst_shvideoenc_read_src_caps(GstshvideoEnc * shvideoenc)
 }
 
 gboolean
-gst_shvideoenc_set_src_caps(GstshvideoEnc * shvideoenc)
+gst_sh_video_enc_set_src_caps(GstshvideoEnc * shvideoenc)
 {
   GstCaps* caps = NULL;
   gboolean ret = TRUE;
@@ -640,7 +640,7 @@ gst_shvideoenc_set_src_caps(GstshvideoEnc * shvideoenc)
 }
 
 void
-gst_shvideo_enc_init_encoder(GstshvideoEnc * shvideoenc)
+gst_sh_video_enc_init_encoder(GstshvideoEnc * shvideoenc)
 {
   gint ret = 0;
   glong fmt = 0;
@@ -676,10 +676,10 @@ gst_shvideo_enc_init_encoder(GstshvideoEnc * shvideoenc)
 					      shvideoenc->format);
 
   shcodecs_encoder_set_input_callback(shvideoenc->encoder, 
-				      gst_shvideo_enc_get_input, 
+				      gst_sh_video_enc_get_input, 
 				      shvideoenc);
   shcodecs_encoder_set_output_callback(shvideoenc->encoder, 
-				       gst_shvideo_enc_write_output, 
+				       gst_sh_video_enc_write_output, 
 				       shvideoenc);
 
   ret =
@@ -709,7 +709,7 @@ gst_shvideo_enc_init_encoder(GstshvideoEnc * shvideoenc)
 }
 
 static gboolean
-gst_shvideo_enc_activate (GstPad * pad)
+gst_sh_video_enc_activate (GstPad * pad)
 {
   gboolean ret;
   GstshvideoEnc *enc = 
@@ -727,10 +727,10 @@ gst_shvideo_enc_activate (GstPad * pad)
 }
 
 static GstStateChangeReturn
-gst_shvideo_enc_change_state (GstElement *element, GstStateChange transition)
+gst_sh_video_enc_change_state (GstElement *element, GstStateChange transition)
 {
   GstStateChangeReturn ret = GST_STATE_CHANGE_SUCCESS;
-  GstshvideoEnc *enc = GST_SHVIDEOENC (element);
+  GstshvideoEnc *enc = GST_SH_VIDEO_ENC (element);
 
   ret = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
   if (ret == GST_STATE_CHANGE_FAILURE)
@@ -758,7 +758,7 @@ gst_shvideo_enc_change_state (GstElement *element, GstStateChange transition)
 }
 
 static GstFlowReturn 
-gst_shvideo_enc_chain (GstPad * pad, GstBuffer * buffer)
+gst_sh_video_enc_chain (GstPad * pad, GstBuffer * buffer)
 {
   gint yuv_size, cbcr_size, i, j;
   guint8* cr_ptr; 
@@ -774,11 +774,11 @@ gst_shvideo_enc_chain (GstPad * pad, GstBuffer * buffer)
 
   if(!enc->caps_set)
   {
-    gst_shvideoenc_read_src_caps(enc);
-    gst_shvideo_enc_init_encoder(enc);
+    gst_sh_video_enc_read_src_caps(enc);
+    gst_sh_video_enc_init_encoder(enc);
     if(!gst_caps_is_any(enc->out_caps))
     {
-      if(!gst_shvideoenc_set_src_caps(enc))
+      if(!gst_sh_video_enc_set_src_caps(enc))
       {
 	return GST_FLOW_UNEXPECTED;
       }
@@ -847,7 +847,7 @@ gst_shvideo_enc_chain (GstPad * pad, GstBuffer * buffer)
 }
 
 static gboolean
-gst_shvideo_enc_activate_pull (GstPad  *pad,
+gst_sh_video_enc_activate_pull (GstPad  *pad,
 			     gboolean active)
 {
   GstshvideoEnc *enc = 
@@ -858,14 +858,14 @@ gst_shvideo_enc_activate_pull (GstPad  *pad,
   if (active) {
     enc->offset = 0;
     return gst_pad_start_task (pad,
-        (GstTaskFunction) gst_shvideo_enc_loop, enc);
+        (GstTaskFunction) gst_sh_video_enc_loop, enc);
   } else {
     return gst_pad_stop_task (pad);
   }
 }
 
 static void
-gst_shvideo_enc_loop (GstshvideoEnc *enc)
+gst_sh_video_enc_loop (GstshvideoEnc *enc)
 {
   GstFlowReturn ret;
   gint yuv_size, cbcr_size, i, j;
@@ -877,11 +877,11 @@ gst_shvideo_enc_loop (GstshvideoEnc *enc)
 
   if(!enc->caps_set)
   {
-    gst_shvideoenc_read_src_caps(enc);
-    gst_shvideo_enc_init_encoder(enc);
+    gst_sh_video_enc_read_src_caps(enc);
+    gst_sh_video_enc_init_encoder(enc);
     if(!gst_caps_is_any(enc->out_caps))
     {
-      if(!gst_shvideoenc_set_src_caps(enc))
+      if(!gst_sh_video_enc_set_src_caps(enc))
       {
 	gst_pad_pause_task (enc->sinkpad);
 	return;
@@ -994,7 +994,7 @@ launch_encoder_thread(void *data)
 }
 
 static int 
-gst_shvideo_enc_get_input(SHCodecs_Encoder * encoder, void *user_data)
+gst_sh_video_enc_get_input(SHCodecs_Encoder * encoder, void *user_data)
 {
   GstshvideoEnc *shvideoenc = (GstshvideoEnc *)user_data;
   gint ret=0;
@@ -1030,7 +1030,7 @@ gst_shvideo_enc_get_input(SHCodecs_Encoder * encoder, void *user_data)
 }
 
 static int 
-gst_shvideo_enc_write_output(SHCodecs_Encoder * encoder,
+gst_sh_video_enc_write_output(SHCodecs_Encoder * encoder,
 			unsigned char *data, int length, void *user_data)
 {
   GstshvideoEnc *enc = (GstshvideoEnc *)user_data;
@@ -1066,7 +1066,7 @@ gst_shvideo_enc_write_output(SHCodecs_Encoder * encoder,
 }
 
 static gboolean
-gst_shvideo_enc_src_query (GstPad * pad, GstQuery * query)
+gst_sh_video_enc_src_query (GstPad * pad, GstQuery * query)
 {
   GstshvideoEnc *enc = 
     (GstshvideoEnc *) (GST_OBJECT_PARENT (pad));

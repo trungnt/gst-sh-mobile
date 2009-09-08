@@ -33,8 +33,8 @@
  *
  * \image html decoder_example.jpeg
  *
- * Again filesrc element is used to read the file, which this time is an AVI
- * wrapped video containing both audio and video streams. avidemux element is 
+ * Filesrc element is used to read the file again, which this time is an AVI
+ * wrapped video containing both audio and video stream. avidemux element is 
  * used to strip the avi container. avidemux has two src-pads, which are 
  * named “demux” using a property. Both of the avidemux src pads are first
  * connected to queue elements, which take care of the buffering of the data in
@@ -42,9 +42,9 @@
  *  
  * The audio stream is then connected to the decodebin element, which detects
  * the stream format and does the decoding. audioconvert and audioresample 
- * elements are used to transform the data into suitable format for 
+ * elements are used to transform the data into a suitable format for 
  * playback. The last element in the audio pipeline is autoaudiosink, which
- * automaticly detects and connects the correct audio sink for playback. This
+ * automatically detects and connects the correct audio sink for playback. This
  * audio pipeline composition is very common in the gstreamer programming.
  *
  * The video pipeline is constructed from SuperH specific elements; 
@@ -256,32 +256,32 @@ enum
  * @param g_class Gclass
  * @param data user data pointer, unused in the function
  */
-static void gst_shvideodec_init_class (gpointer g_class, gpointer data);
+static void gst_sh_video_dec_init_class (gpointer g_class, gpointer data);
 
 /** 
  * Initialize SH hardware video decoder & sink
  * @param klass Gstreamer element class
  */
-static void gst_shvideodec_base_init (gpointer klass);
+static void gst_sh_video_dec_base_init (gpointer klass);
 
 /** 
  * Dispose decoder
  * @param object Gstreamer element class
  */
-static void gst_shvideodec_dispose (GObject * object);
+static void gst_sh_video_dec_dispose (GObject * object);
 
 /** 
  * Initialize the class for decoder and player
  * @param klass Gstreamer SH video decodes class
  */
-static void gst_shvideodec_class_init (GstshvideodecClass * klass);
+static void gst_sh_video_dec_class_init (GstSHVideoDecClass * klass);
 
 /** 
  * Initialize the decoder
  * @param dec Gstreamer SH video element
  * @param gklass Gstreamer SH video decode class
  */
-static void gst_shvideodec_init (Gstshvideodec * dec, GstshvideodecClass * gklass);
+static void gst_sh_video_dec_init (GstSHVideoDec * dec, GstSHVideoDecClass * gklass);
 
 
 /** 
@@ -291,7 +291,7 @@ static void gst_shvideodec_init (Gstshvideodec * dec, GstshvideodecClass * gklas
  * @param value In this case maximum buffer size in kilo bytes
  * @param pspec not used in fuction
  */
-static void gst_shvideodec_set_property (GObject *object, 
+static void gst_sh_video_dec_set_property (GObject *object, 
 					 guint prop_id, const GValue *value, 
 					 GParamSpec * pspec);
 
@@ -302,7 +302,7 @@ static void gst_shvideodec_set_property (GObject *object,
  * @param value In this case maximum buffer size in kilo bytes
  * @param pspec not used in fuction
  */
-static void gst_shvideodec_get_property (GObject * object, guint prop_id,
+static void gst_sh_video_dec_get_property (GObject * object, guint prop_id,
 					 GValue * value, GParamSpec * pspec);
 
 /** 
@@ -311,7 +311,7 @@ static void gst_shvideodec_get_property (GObject * object, guint prop_id,
  * @param event The Gstreamer event
  * @return returns true if the event can be handled, else false
  */
-static gboolean gst_shvideodec_sink_event (GstPad * pad, GstEvent * event);
+static gboolean gst_sh_video_dec_sink_event (GstPad * pad, GstEvent * event);
 
 /** 
  * Initialize the decoder sink pad 
@@ -319,7 +319,7 @@ static gboolean gst_shvideodec_sink_event (GstPad * pad, GstEvent * event);
  * @param caps The capabilities of the video to decode
  * @return returns true if the video capatilies are supported and the video can be decoded, else false
  */
-static gboolean gst_shvideodec_setcaps (GstPad * pad, GstCaps * caps);
+static gboolean gst_sh_video_dec_setcaps (GstPad * pad, GstCaps * caps);
 
 /** 
  * GStreamer buffer handling function
@@ -327,7 +327,7 @@ static gboolean gst_shvideodec_setcaps (GstPad * pad, GstCaps * caps);
  * @param inbuffer The input buffer
  * @return returns GST_FLOW_OK if buffer handling was successful. Otherwise GST_FLOW_UNEXPECTED
  */
-static GstFlowReturn gst_shvideodec_chain (GstPad * pad, GstBuffer * inbuffer);
+static GstFlowReturn gst_sh_video_dec_chain (GstPad * pad, GstBuffer * inbuffer);
 
 /** 
  * Event handler for the video frame is decoded and can be shown on screen
@@ -336,26 +336,26 @@ static GstFlowReturn gst_shvideodec_chain (GstPad * pad, GstBuffer * inbuffer);
  * @param y_size Size of the Y buffer
  * @param c_buf Userland address to teh C buffer
  * @param c_size Size of the C buffer
- * @param user_data Contains Gstshvideodec
+ * @param user_data Contains GstSHVideoDec
  * @return The result of passing data to a pad
  */
-static int gst_shcodecs_decoded_callback (SHCodecs_Decoder * decoder,
-					  unsigned char * y_buf, int y_size,
-					  unsigned char * c_buf, int c_size,
+static gint gst_shcodecs_decoded_callback (SHCodecs_Decoder * decoder,
+					  guchar * y_buf, gint y_size,
+					  guchar * c_buf, gint c_size,
 					  void * user_data);
 
 
 // DEFINITIONS
 
 static void
-gst_shvideodec_init_class (gpointer g_class, gpointer data)
+gst_sh_video_dec_init_class (gpointer g_class, gpointer data)
 {
 	parent_class = g_type_class_peek_parent (g_class);
-	gst_shvideodec_class_init ((GstshvideodecClass *) g_class);
+	gst_sh_video_dec_class_init ((GstSHVideoDecClass *) g_class);
 }
 
 GType
-gst_shvideodec_get_type (void)
+gst_sh_video_dec_get_type (void)
 {
 	static GType object_type = 0;
 
@@ -363,15 +363,15 @@ gst_shvideodec_get_type (void)
 	{
 		static const GTypeInfo object_info = 
 		{
-			sizeof (GstshvideodecClass),
-			gst_shvideodec_base_init,
+			sizeof (GstSHVideoDecClass),
+			gst_sh_video_dec_base_init,
 			NULL,
-			gst_shvideodec_init_class,
+			gst_sh_video_dec_init_class,
 			NULL,
 			NULL,
-			sizeof (Gstshvideodec),
+			sizeof (GstSHVideoDec),
 			0,
-			(GInstanceInitFunc) gst_shvideodec_init
+			(GInstanceInitFunc) gst_sh_video_dec_init
 		};
 
 		object_type = g_type_register_static (GST_TYPE_ELEMENT, 
@@ -383,7 +383,7 @@ gst_shvideodec_get_type (void)
 }
 
 static void
-gst_shvideodec_base_init (gpointer klass)
+gst_sh_video_dec_base_init (gpointer klass)
 {
 	static const GstElementDetails plugin_details =
 		GST_ELEMENT_DETAILS ("SH hardware video decoder",
@@ -402,9 +402,9 @@ gst_shvideodec_base_init (gpointer klass)
 }
 
 static void
-gst_shvideodec_dispose (GObject * object)
+gst_sh_video_dec_dispose (GObject * object)
 {
-	Gstshvideodec *dec = GST_SHVIDEODEC (object);
+	GstSHVideoDec *dec = GST_SH_VIDEO_DEC (object);
 
 	GST_LOG_OBJECT(dec,"%s called\n",__FUNCTION__);  
 
@@ -417,7 +417,7 @@ gst_shvideodec_dispose (GObject * object)
 }
 
 static void
-gst_shvideodec_class_init (GstshvideodecClass * klass)
+gst_sh_video_dec_class_init (GstSHVideoDecClass * klass)
 {
 	GObjectClass *gobject_class;
 	GstElementClass *gstelement_class;
@@ -428,9 +428,9 @@ gst_shvideodec_class_init (GstshvideodecClass * klass)
 	GST_DEBUG_CATEGORY_INIT (gst_sh_mobile_debug, "gst-sh-mobile-dec",
 				 0, "Decoder for H264/MPEG4 streams");
 
-	gobject_class->dispose = gst_shvideodec_dispose;
-	gobject_class->set_property = gst_shvideodec_set_property;
-	gobject_class->get_property = gst_shvideodec_get_property;
+	gobject_class->dispose = gst_sh_video_dec_dispose;
+	gobject_class->set_property = gst_sh_video_dec_set_property;
+	gobject_class->get_property = gst_sh_video_dec_get_property;
 
 	g_object_class_install_property (gobject_class, PROP_MAX_BUFFER_SIZE,
 					 g_param_spec_uint ("buffer-size", 
@@ -448,17 +448,17 @@ gst_shvideodec_class_init (GstshvideodecClass * klass)
 }
 
 static void
-gst_shvideodec_init (Gstshvideodec * dec, GstshvideodecClass * gklass)
+gst_sh_video_dec_init (GstSHVideoDec * dec, GstSHVideoDecClass * gklass)
 {
 	GstElementClass *kclass = GST_ELEMENT_GET_CLASS (dec);
 
 	GST_LOG_OBJECT(dec,"%s called",__FUNCTION__);
 
 	dec->sinkpad = gst_pad_new_from_template(gst_element_class_get_pad_template(kclass,"sink"),"sink");
-	gst_pad_set_setcaps_function(dec->sinkpad, gst_shvideodec_setcaps);
-	gst_pad_set_chain_function(dec->sinkpad,GST_DEBUG_FUNCPTR(gst_shvideodec_chain));
+	gst_pad_set_setcaps_function(dec->sinkpad, gst_sh_video_dec_setcaps);
+	gst_pad_set_chain_function(dec->sinkpad,GST_DEBUG_FUNCPTR(gst_sh_video_dec_chain));
 	gst_pad_set_event_function (dec->sinkpad,
-				    GST_DEBUG_FUNCPTR (gst_shvideodec_sink_event));
+				    GST_DEBUG_FUNCPTR (gst_sh_video_dec_sink_event));
 	gst_element_add_pad(GST_ELEMENT(dec),dec->sinkpad);
 
 	dec->srcpad = gst_pad_new_from_template(gst_element_class_get_pad_template(kclass,"src"),"src");
@@ -480,10 +480,10 @@ gst_shvideodec_init (Gstshvideodec * dec, GstshvideodecClass * gklass)
 
 
 static void
-gst_shvideodec_set_property (GObject * object, guint prop_id,
+gst_sh_video_dec_set_property (GObject * object, guint prop_id,
 			     const GValue * value, GParamSpec * pspec)
 {
-	Gstshvideodec *dec = GST_SHVIDEODEC (object);
+	GstSHVideoDec *dec = GST_SH_VIDEO_DEC (object);
 	const gchar* string;
 	
 	GST_LOG_OBJECT(dec,"%s called",__FUNCTION__);
@@ -522,10 +522,10 @@ gst_shvideodec_set_property (GObject * object, guint prop_id,
 }
 
 static void
-gst_shvideodec_get_property (GObject * object, guint prop_id,
+gst_sh_video_dec_get_property (GObject * object, guint prop_id,
 			     GValue * value, GParamSpec * pspec)
 {
-	Gstshvideodec *dec = GST_SHVIDEODEC (object);
+	GstSHVideoDec *dec = GST_SH_VIDEO_DEC (object);
 
 	GST_DEBUG_OBJECT(dec,"%s called",__FUNCTION__);
 
@@ -564,9 +564,9 @@ gst_shvideodec_get_property (GObject * object, guint prop_id,
 }
 
 static gboolean
-gst_shvideodec_sink_event (GstPad * pad, GstEvent * event)
+gst_sh_video_dec_sink_event (GstPad * pad, GstEvent * event)
 {
-	Gstshvideodec *dec = (Gstshvideodec *) (GST_OBJECT_PARENT (pad));
+	GstSHVideoDec *dec = (GstSHVideoDec *) (GST_OBJECT_PARENT (pad));
 
 	GST_DEBUG_OBJECT(dec,"%s called event %i",__FUNCTION__,GST_EVENT_TYPE(event));
 
@@ -578,7 +578,7 @@ gst_shvideodec_sink_event (GstPad * pad, GstEvent * event)
 		{
 			pthread_join(dec->dec_thread,NULL);
 			// Decode the rest of the buffer
-			gst_shvideodec_decode(dec);
+			gst_sh_video_dec_decode(dec);
 		}
 	}
 
@@ -586,11 +586,11 @@ gst_shvideodec_sink_event (GstPad * pad, GstEvent * event)
 }
 
 static gboolean
-gst_shvideodec_setcaps (GstPad * pad, GstCaps * sink_caps)
+gst_sh_video_dec_setcaps (GstPad * pad, GstCaps * sink_caps)
 {
 	GstStructure *structure = NULL;
 	GstCaps* src_caps = NULL;
-	Gstshvideodec *dec = (Gstshvideodec *) (GST_OBJECT_PARENT (pad));
+	GstSHVideoDec *dec = (GstSHVideoDec *) (GST_OBJECT_PARENT (pad));
 	gboolean ret = TRUE;
 
 	GST_LOG_OBJECT(dec,"%s called",__FUNCTION__);
@@ -669,7 +669,7 @@ gst_shvideodec_setcaps (GstPad * pad, GstCaps * sink_caps)
 	/* Autodetect Gstshvideosink */
 	if(dec->use_physical == HW_ADDR_AUTO)
 	{
-		if(GST_IS_SHVIDEOSINK(gst_pad_get_parent_element(gst_pad_get_peer(dec->srcpad))))
+		if(GST_IS_SH_VIDEO_SINK(gst_pad_get_parent_element(gst_pad_get_peer(dec->srcpad))))
 		{
 			dec->use_physical = HW_ADDR_YES;
 			GST_DEBUG_OBJECT(dec,"use_physical auto detected to YES");  
@@ -721,9 +721,9 @@ gst_shvideodec_setcaps (GstPad * pad, GstCaps * sink_caps)
 }
 
 static GstFlowReturn
-gst_shvideodec_chain (GstPad * pad, GstBuffer * inbuffer)
+gst_sh_video_dec_chain (GstPad * pad, GstBuffer * inbuffer)
 {
-	Gstshvideodec *dec = (Gstshvideodec *) (GST_OBJECT_PARENT (pad));
+	GstSHVideoDec *dec = (GstSHVideoDec *) (GST_OBJECT_PARENT (pad));
 	GstFlowReturn ret = GST_FLOW_OK;
 
 	if(!dec->caps_set)
@@ -777,7 +777,7 @@ gst_shvideodec_chain (GstPad * pad, GstBuffer * inbuffer)
 	{
 		GST_DEBUG_OBJECT(dec,"Starting the decoder thread");    
 		dec->running = TRUE;
-		pthread_create( &dec->dec_thread, NULL, gst_shvideodec_decode, dec);
+		pthread_create( &dec->dec_thread, NULL, gst_sh_video_dec_decode, dec);
 	}
 
 	/* Free waiting decoder */
@@ -789,12 +789,12 @@ gst_shvideodec_chain (GstPad * pad, GstBuffer * inbuffer)
 }
 
 void *
-gst_shvideodec_decode (void *data)
+gst_sh_video_dec_decode (void *data)
 {
-	int used_bytes;
+	gint used_bytes;
 	GstBuffer* buffer;
 
-	Gstshvideodec *dec = (Gstshvideodec *)data;
+	GstSHVideoDec *dec = (GstSHVideoDec *)data;
 
 	GST_LOG_OBJECT(dec,"%s called\n",__FUNCTION__);
 
@@ -867,13 +867,13 @@ gst_shvideodec_decode (void *data)
 	return NULL;
 }
 
-static int
+static gint
 gst_shcodecs_decoded_callback (SHCodecs_Decoder * decoder,
-						 unsigned char * y_buf, int y_size,
-						 unsigned char * c_buf, int c_size,
-						 void * user_data)
+			       guchar * y_buf, gint y_size,
+			       guchar * c_buf, gint c_size,
+			       void * user_data)
 {
-	Gstshvideodec *dec = (Gstshvideodec *) user_data;
+	GstSHVideoDec *dec = (GstSHVideoDec *) user_data;
 	GstBuffer *buf;  
 	GstFlowReturn ret;
 	gint offset = shcodecs_decoder_get_frame_count(dec->decoder);
@@ -883,11 +883,11 @@ gst_shcodecs_decoded_callback (SHCodecs_Decoder * decoder,
 	if(dec->use_physical == HW_ADDR_YES)
 	{
 		GST_LOG_OBJECT(dec,"Using own buffer");  
-		buf = (GstBuffer *) gst_mini_object_new (GST_TYPE_SHVIDEOBUFFER);
-		GST_SHVIDEOBUFFER_Y_DATA(buf) = y_buf;    
-		GST_SHVIDEOBUFFER_Y_SIZE(buf) = y_size;    
-		GST_SHVIDEOBUFFER_C_DATA(buf) = c_buf;    
-		GST_SHVIDEOBUFFER_C_SIZE(buf) = c_size;    
+		buf = (GstBuffer *) gst_mini_object_new (GST_TYPE_SH_VIDEO_BUFFER);
+		GST_SH_VIDEO_BUFFER_Y_DATA(buf) = y_buf;    
+		GST_SH_VIDEO_BUFFER_Y_SIZE(buf) = y_size;    
+		GST_SH_VIDEO_BUFFER_C_DATA(buf) = c_buf;    
+		GST_SH_VIDEO_BUFFER_C_SIZE(buf) = c_size;    
 		GST_BUFFER_OFFSET(buf) = offset; 
 	}
 	else

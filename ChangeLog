@@ -41,3 +41,9 @@
    * Video output area size and cordinates can be set with parameters
    * Support of the decoder zerocopy feature can be set as enabled or disabled
    * The sink element can provide an up-stream buffer if needed for the zerocopy support
+
+2009-09-09 Johannes Lahti <johannes.lahti@nomovok.com>
+
+   * First official release of the separate elements.
+   * A bug correct in the buffer handling.
+   * Pre buffering of the data removed. Runtime buffering still included.

@@ -31,23 +31,23 @@
 #include "gstshioutils.h"
 
 G_BEGIN_DECLS
-#define GST_TYPE_SHVIDEOSINK \
-	(gst_shvideosink_get_type())
-#define GST_SHVIDEOSINK(obj) \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_SHVIDEOSINK,Gstshvideosink))
-#define GST_SHVIDEOSINK_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_SHVIDEOSINK,Gstshvideosink))
-#define GST_IS_SHVIDEOSINK(obj) \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_SHVIDEOSINK))
-#define GST_IS_SHVIDEOSINK_CLASS(obj) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_SHVIDEOSINK))
-typedef struct _Gstshvideosink Gstshvideosink;
-typedef struct _GstshvideosinkClass GstshvideosinkClass;
+#define GST_TYPE_SH_VIDEO_SINK \
+	(gst_sh_video_sink_get_type())
+#define GST_SH_VIDEO_SINK(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_SH_VIDEO_SINK,GstSHVideoSink))
+#define GST_SH_VIDEO_SINK_CLASS(klass) \
+	(G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_SH_VIDEO_SINK,GstSHVideoSink))
+#define GST_IS_SH_VIDEO_SINK(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_SH_VIDEO_SINK))
+#define GST_IS_SH_VIDEO_SINK_CLASS(obj) \
+	(G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_SH_VIDEO_SINK))
+typedef struct _GstSHVideoSink GstSHVideoSink;
+typedef struct _GstSHVideoSinkClass GstSHVideoSinkClass;
 
-#define GST_SHVIDEOSINK_CAST(obj)  ((Gstshvideosink *) (obj))
+#define GST_SH_VIDEO_SINK_CAST(obj)  ((GstSHVideoSink *) (obj))
 
 /**
- * \struct _Gstshvideosink
+ * \struct _GstSHVideoSink
  * \var video_sink Parent element
  * \var fps_numerator Numerator of the framerate fraction
  * \var fps_denominator Denominator of the framerate fraction
@@ -55,12 +55,12 @@ typedef struct _GstshvideosinkClass GstshvideosinkClass;
  * \var dst_width Width of the output
  * \var dst_width Height of the output
  * \var dst_x X-ccordinate of the output
- * \vat dst_y Y-coordinate of the output
+ * \var dst_y Y-coordinate of the output
  * \var zoom_factor Zoom -setting. (See properties)
  * \var fb Framebuffer
  * \var veu VEU (Video Engine Unit)
  */
-struct _Gstshvideosink
+struct _GstSHVideoSink
 {
 	GstVideoSink video_sink;
 
@@ -80,10 +80,10 @@ struct _Gstshvideosink
 };
 
 /**
- * \struct _GstshvideosinkClass
+ * \struct _GstSHVideoSinkClass
  * \var parent_class Parent
  */
-struct _GstshvideosinkClass
+struct _GstSHVideoSinkClass
 {
 	GstVideoSinkClass parent_class;
 };
@@ -93,7 +93,7 @@ struct _GstshvideosinkClass
 * Get gst-sh-mobile-sink object type
 * @return object type
 */
-GType gst_shvideosink_get_type (void);
+GType gst_sh_video_sink_get_type (void);
 
 G_END_DECLS
 #endif

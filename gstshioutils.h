@@ -50,9 +50,9 @@ typedef struct _framebuffer
  */
 typedef struct _uio_device 
 {
-	char *name;
-	char *path;
-	int fd;
+	gchar *name;
+	gchar *path;
+	gint fd;
 }uio_device;
 
 /**
@@ -63,8 +63,8 @@ typedef struct _uio_device
  */
 typedef struct _uio_map 
 {
-	unsigned long address;
-	unsigned long size;
+	gulong address;
+	gulong size;
 	void *iomem;
 }uio_map;
 
@@ -81,16 +81,49 @@ typedef struct _uio_module
 	uio_map mem;
 }uio_module;
 
+/**
+ * Clear the framebuffer
+ * \param pointer to the framebuffer
+ */
 void clear_framebuffer(framebuffer *fbuf);
 
+/**
+ * Initialize the framebuffer
+ * \param pointer to the framebuffer
+ */
 gboolean init_framebuffer(framebuffer *fbuf);
 
+/**
+ * Initialize the Video Engine Unit
+ * \param pointer to the VEU
+ */
 gboolean init_veu(uio_module *veu);
 
-gboolean setup_veu(uio_module *veu, int src_w, int src_h, int dst_w, int dst_h, 
-		   int dst_stride, int pos_x, int pos_y, int dst_max_w, 
-		   int dst_max_h, unsigned long dst_addr, int bpp);
+/**
+ * Setup the Video Engine Unit
+ * \param pointer to the VEU
+ * \param src_w Width of the source stream
+ * \param src_h Height of the source stream
+ * \param dst_w Width of the destination stream
+ * \param dst_h Height of the destination stream
+ * \param dst_stride Line length of the destination buffer
+ * \param pos_x X -coordinate of the destination stream
+ * \param pos_y Y -coordinate of the destination stream
+ * \param dst_max_w Maximum width of the destination stream
+ * \param dst_max_h Maximum height of the destination stream
+ * \param dst_addr Address of the destination buffer
+ * \param bpp Bits per pixel
+ */
+gboolean setup_veu(uio_module *veu, gint src_w, gint src_h, gint dst_w, gint dst_h, 
+		   gint dst_stride, gint pos_x, gint pos_y, gint dst_max_w, 
+		   gint dst_max_h, gulong dst_addr, gint bpp);
 
-gboolean veu_blit(uio_module *veu, unsigned long y_addr, unsigned long c_addr);
+/**
+ * Blit the image using VEU
+ * \param pointer to the VEU
+ * \param y_addr Address of the Y -data
+ * \param c_addr Address of the C -data
+ */
+gboolean veu_blit(uio_module *veu, gulong y_addr, gulong c_addr);
 
 #endif // GSTSHIOUTILS_H
