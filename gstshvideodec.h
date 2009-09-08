@@ -28,23 +28,23 @@
 #include <gst/gstelement.h>
 
 G_BEGIN_DECLS
-#define GST_TYPE_SHVIDEODEC \
-	(gst_shvideodec_get_type())
-#define GST_SHVIDEODEC(obj) \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_SHVIDEODEC,Gstshvideodec))
-#define GST_SHVIDEODEC_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_SHVIDEODEC,Gstshvideodec))
-#define GST_IS_SHVIDEODEC(obj) \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_SHVIDEODEC))
-#define GST_IS_SHVIDEODEC_CLASS(obj) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_SHVIDEODEC))
-typedef struct _Gstshvideodec Gstshvideodec;
-typedef struct _GstshvideodecClass GstshvideodecClass;
+#define GST_TYPE_SH_VIDEO_DEC \
+	(gst_sh_video_dec_get_type())
+#define GST_SH_VIDEO_DEC(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_SH_VIDEO_DEC,GstSHVideoDec))
+#define GST_SH_VIDEO_DEC_CLASS(klass) \
+	(G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_SH_VIDEO_DEC,GstSHVideoDec))
+#define GST_IS_SH_VIDEO_DEC(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_SH_VIDEO_DEC))
+#define GST_IS_SH_VIDEO_DEC_CLASS(obj) \
+	(G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_SH_VIDEO_DEC))
+typedef struct _GstSHVideoDec GstSHVideoDec;
+typedef struct _GstSHVideoDecClass GstSHVideoDecClass;
 
 #include <shcodecs/shcodecs_decoder.h>
 
 /**
- * \struct _Gstshvideodec gstshvideodec.h
+ * \struct _GstSHVideoDec gstshvideodec.h
  * \var element GstElement object
  * \var sinkpad Pointer to our sink pad
  * \var srcpad Pointer to our src pad
@@ -64,7 +64,7 @@ typedef struct _GstshvideodecClass GstshvideodecClass;
  * \var cond_mutex Mutex for the conditional variable of the decoder thread
  * \var thread_condition Conditional variable of the decoder thread
  */
-struct _Gstshvideodec
+struct _GstSHVideoDec
 {
 	GstElement element;
 
@@ -93,11 +93,11 @@ struct _Gstshvideodec
 };
 
 /**
- * GstshvideodecClass
- * \struct _GstshvideodecClass
+ * GstSHVideoDecClass
+ * \struct _GstSHVideoDecClass
  * \var parent Parent class
  */
-struct _GstshvideodecClass
+struct _GstSHVideoDecClass
 {
 	GstElementClass parent;
 };
@@ -105,12 +105,12 @@ struct _GstshvideodecClass
 /** Get gst-sh-mobile-dec-sink object type
 * \var return object type
 */
-GType gst_shvideodec_get_type (void);
+GType gst_sh_video_dec_get_type (void);
 
 /** The video input buffer decode function
 * \var param data decoder object
 */
-void* gst_shvideodec_decode (void *data);
+void* gst_sh_video_dec_decode (void *data);
 
 G_END_DECLS
 #endif

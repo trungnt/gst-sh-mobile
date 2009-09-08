@@ -78,16 +78,16 @@
 #define VCOFFR 0x224 /* color conversion offset */
 #define VCBR   0x228 /* color conversion clip */
 
-unsigned long read_reg(uio_map *ump, int reg_offs)
+gulong read_reg(uio_map *ump, gint reg_offs)
 {
-	volatile unsigned long *reg = ump->iomem;
+	volatile gulong *reg = ump->iomem;
 
 	return reg[reg_offs / 4];
 }
 
-void write_reg(uio_map *ump, unsigned long value, int reg_offs)
+void write_reg(uio_map *ump, gulong value, gint reg_offs)
 {
-	volatile unsigned long *reg = ump->iomem;
+	volatile gulong *reg = ump->iomem;
 
 	reg[reg_offs / 4] = value;
 }
@@ -101,7 +101,7 @@ clear_framebuffer(framebuffer *fbuf)
 gboolean 
 init_framebuffer(framebuffer *fbuf)
 {
-	int fd;
+	gint fd;
 
 	fd = open(FB_DEVICE, O_RDWR);
 	if (fd < 0) 
@@ -133,7 +133,7 @@ init_framebuffer(framebuffer *fbuf)
 	return TRUE;
 }
 
-int fgets_with_openclose(char *fname, char *buf, size_t maxlen)
+gint fgets_with_openclose(gchar *fname, gchar *buf, size_t maxlen)
 {
 		FILE *fp;
 
@@ -179,9 +179,9 @@ int locate_uio_device(char *name, uio_device *udp)
 	return 0;
 }
 
-int setup_uio_map(uio_device *udp, int nr, uio_map *ump)
+gint setup_uio_map(uio_device *udp, gint nr, uio_map *ump)
 {
-	char fname[MAXNAMELEN], buf[MAXNAMELEN];
+	gchar fname[MAXNAMELEN], buf[MAXNAMELEN];
 
 	snprintf(fname, MAXNAMELEN, "%s/maps/map%d/addr", udp->path, nr);
 	if (fgets_with_openclose(fname, buf, MAXNAMELEN) <= 0)
@@ -205,7 +205,7 @@ int setup_uio_map(uio_device *udp, int nr, uio_map *ump)
 }
 
 gboolean
-init_module(uio_module *module, char *name)
+init_module(uio_module *module, gchar *name)
 {
 	gint ret;
 
@@ -242,11 +242,10 @@ gboolean init_veu(uio_module *veu)
 	return TRUE;
 }
 
-unsigned long do_scale(uio_map *ump,
-					 int vertical, int size_in,
-					 int size_out, int crop_out)
+gulong do_scale(uio_map *ump, gint vertical, gint size_in, gint size_out, 
+		gint crop_out)
 {
-		unsigned long fixpoint, mant, frac, value, rep;
+		gulong fixpoint, mant, frac, value, rep;
 
 		/* calculate FRAC and MANT */
 		/* The formula is available in the SuperH data sheet. */
@@ -334,11 +333,11 @@ unsigned long do_scale(uio_map *ump,
 }
 
 gboolean 
-setup_veu(uio_module *veu, int src_w, int src_h, int dst_w, int dst_h, 
-		int dst_stride, int pos_x, int pos_y, 
-		int dst_max_w, int dst_max_h, unsigned long dst_addr, int bpp)
+setup_veu(uio_module *veu, gint src_w, gint src_h, gint dst_w, gint dst_h, 
+		gint dst_stride, gint pos_x, gint pos_y, 
+		gint dst_max_w, gint dst_max_h, gulong dst_addr, gint bpp)
 {
-	int src_stride, cropped_w, cropped_h;
+	gint src_stride, cropped_w, cropped_h;
 
 	if(strcmp(veu->dev.name,VEU_NAME))
 	{
@@ -397,9 +396,9 @@ setup_veu(uio_module *veu, int src_w, int src_h, int dst_w, int dst_h,
 }
 
 gboolean
-veu_blit(uio_module *veu, unsigned long y_addr, unsigned long c_addr)
+veu_blit(uio_module *veu, gulong y_addr, gulong c_addr)
 {
-	unsigned long enable = 1;
+	gulong enable = 1;
 
 	if(strcmp(veu->dev.name,VEU_NAME))
 	{
@@ -411,7 +410,7 @@ veu_blit(uio_module *veu, unsigned long y_addr, unsigned long c_addr)
 	write_reg(&veu->mmio, c_addr, VSACR);
 
 	/* Enable interrupt in UIO driver */
-	write(veu->dev.fd, &enable, sizeof(unsigned long));
+	write(veu->dev.fd, &enable, sizeof(gulong));
 
 	write_reg(&veu->mmio, 1, VESTR); /* start operation */
 
