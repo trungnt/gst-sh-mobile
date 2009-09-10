@@ -1,10 +1,10 @@
-*** GSTREAMER SH ENCODER AND DECODER ***
+*** GSTREAMER SUPERH ELEMENTS ***
 
-This gst-sh-mobile contains the encoder and decoder Gstreamer elements for
-SuperH environment. These elements are depending to libshcodes and it provides
+This gst-sh-mobile plugin contains encoder, decoder and sink Gstreamer elements 
+for SuperH environment. These elements are depending to libshcodes and it provides
 the hardware acceleration for gst-sh-mobile elements.
 
-HOWTO BUILD
+HOW TO BUILD
 
 Please use the autoconf and automake configurations in this package. You can
 configure and build the elements like this:
@@ -13,10 +13,10 @@ $ ./autogen.sh
 $ ./configure
 $ make
 
-HOWTO USE
+HOW TO USE
 
-These two basic use cases are just examples of the usage possibilities. Please
-note that the decoder is a sink and it will play the video on the screen.
+These two basic use cases are just examples of the usage possibilities.
+More examples can be found in the documentation.
 
 Encode file to file:
 
@@ -25,5 +25,5 @@ cntl_file=encoder_control_file.ctl ! filesink location=encoded_video_file
 
 Decode a file and playback on the screen:
 
-$ gst-launch filesrc location=video_file.avi  ! avidemux name=demux \
-demux.video_00 ! queue ! gst-sh-mobile-dec-sink
+$ gst-launch filesrc location=video_file.avi  ! avidemux \
+! queue ! gst-sh-mobile-dec ! gst-sh-mobile-sink
