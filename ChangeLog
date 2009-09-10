@@ -45,5 +45,5 @@
 2009-09-09 Johannes Lahti <johannes.lahti@nomovok.com>
 
    * First official release of the separate elements.
-   * A bug correct in the buffer handling.
+   * Corrected a bug in the buffer handling.
    * Pre buffering of the data removed. Runtime buffering still included.

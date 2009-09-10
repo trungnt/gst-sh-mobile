@@ -1,4 +1,4 @@
-This is a release announcement for Multimedia Demos (project C848P004). 
+This is a release announcement for gst-sh-mobile Continuation project. 
 
 Contents: 
 
@@ -28,24 +28,24 @@ New Features and Fixes:
 
 o Decoder and sink implemented as separate elements
 o Own buffer implemented for supporting zero copy functionality
-o VEU API from Magnus Damm modified to suid our needs
+o VEU API from Magnus Damm modified to suit our needs
 o Fixed a bug in the input buffer handling. (Bug found by Renesas)
 o Pre buffering removed from the decoder. Runtime buffering is still included.
 
 === 1.2. Notes  ===
 
 o Work done in this project is a continuum to the work done in 
-  AV Synchronization project (C848P003)
+  AV Synchronization project
 o This release concerns only the decoder and sink elements, although also
-  encoder code is committed in the github.
+  encoder code is committed to the github.
 
 === 1.3. Known Issues  ===
 
-o Support for upstream buffer alloction done in the sink element is not working
-  currently. For some reason the the parameter data gets corrupted when calling
+o Support for upstream buffer allocation done in the sink element is not working
+  currently. For some reason the parameter data gets corrupted when calling
   the buffer allocation function.
 o A few blurry frames are visible during decoding of the H264 sample stream.
-  Changing the buffer size doesn't have much effect in this.
+  Changing the buffer size doesn't have much effect on this.
 
 == 2. Results of the BAT Tests ==
 
