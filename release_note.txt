@@ -1,4 +1,5 @@
-This is a release announcement for gst-sh-mobile Continuation project. 
+This is a release announcement for gst-sh-mobile software package, 
+which is part of gst-sh-mobile Continuation project. 
 
 Contents: 
 
@@ -14,30 +15,29 @@ Contents:
 
 == 1. Release Notes  ==
 
-Release date: Wed, 9 Sep 2009
+Release date: Sun, 13 Sep 2009
 
-Version number: 0.1
+Software version number: 1.2
+
+Project milestone: 0.2
 
 Released architectures: SuperH (SH7723, SH4)
 
-Released packages: gst-sh-mobile (0.1)
+Released packages: gst-sh-mobile (1.2)
 
 === 1.1. Major Changes  ===
 
 New Features and Fixes: 
 
-o Decoder and sink implemented as separate elements
-o Own buffer implemented for supporting zero copy functionality
-o VEU API from Magnus Damm modified to suit our needs
-o Fixed a bug in the input buffer handling. (Bug found by Renesas)
-o Pre buffering removed from the decoder. Runtime buffering is still included.
+o Version numbering changed to continue the numbering started in the previous
+  project. 
 
 === 1.2. Notes  ===
 
-o Work done in this project is a continuum to the work done in 
-  AV Synchronization project
-o This release concerns only the decoder and sink elements, although also
-  encoder code is committed to the github.
+o This release was planned to include the fix in buffer handling which was 
+  provided by Conrad Parker. However this fix was actually released already in
+  the previous release. Thus, this is just a formal release to stay in line
+  with the project plan and schedule.
 
 === 1.3. Known Issues  ===
 
