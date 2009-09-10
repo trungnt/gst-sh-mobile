@@ -1,21 +1,29 @@
 *** GSTREAMER SUPERH ELEMENTS ***
 
 This gst-sh-mobile plugin contains encoder, decoder and sink Gstreamer elements 
-for SuperH environment. These elements are depending to libshcodes and it provides
+for SuperH environment. These elements are depending on libshcodes and it provides
 the hardware acceleration for gst-sh-mobile elements.
 
 HOW TO BUILD
 
 Please use the autoconf and automake configurations in this package. You can
-configure and build the elements like this:
+configure and build the elements as following:
 
 $ ./autogen.sh
 $ ./configure
 $ make
 
+HOW TO BUILD THE DOCUMENTATION
+
+Documentation html -files can be generated under docs/ using Doxygen. If
+Doxygen is not available, the documentation can be read from the comments 
+in the source code files. Doxygen command:
+
+$ doxygen doxygen.conf
+
 HOW TO USE
 
-These two basic use cases are just examples of the usage possibilities.
+These two basic use cases are examples of the usage possibilities.
 More examples can be found in the documentation.
 
 Encode file to file:
