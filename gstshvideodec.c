@@ -61,7 +61,8 @@
  * Here the video stream is received from udpsrc element. gstrtpjitterbuffer
  * element is used to take care of ordering and storing the received RTP
  * packages. Next rtpmp4vdepay element is used to remove the RTP frames from
- * the buffers. Again, the static caps are needed to pass info to the decoder.
+ * the buffers. Again, the static caps are needed to pass information to the 
+ * decoder.
  *
  * \section dec-properties Properties
  * \copydoc gstshvideodecproperties

@@ -12,8 +12,9 @@
  * \code
  * gst-launch videotestsrc !  gst-sh-mobile-sink
  * \endcode
- * As simple pipeline as possible to test the gst-sh-mobile-sink element.
- * Videotestsrc provides test video streams in various formats.
+ * This is the simplest pipeline which can be used to test the 
+ * gst-sh-mobile-sink element. Videotestsrc provides video streams in various 
+ * formats for testing.
  *
  *
  * \subsection sink-example-2 Displaying an Ogg video
@@ -42,17 +43,17 @@
  * wrapped video containing both audio and video streams. avidemux element is
  * used to strip the avi container. avidemux has two src-pads, which are
  * named “demux” using a property. Both of the avidemux src pads are first
- * connected to queue elements, which takes care of the buffering of the data in
+ * connected to queue elements, which take care of the buffering of the data in
  * the pipeline. 
  *
  * The audio stream is then connected to the the decodebin element, which detects
  * the stream format and does the decoding. audioconvert and audioresample
- * elements are used to transform the data in suitable format for
+ * elements are used to transform the data into a suitable format for
  * playback. The last element in the audio pipeline is autoaudiosink, which
- * automaticly detects and connects the correct audio sink for playback. This
+ * automatically detects and connects the correct audio sink for playback. This
  * audio pipeline composition is very common in GStreamer programming.
  * 
- * The video pipeline is constructed from SuperH spesific elements;
+ * The video pipeline is constructed from SuperH specific elements;
  * gst-sh-mobile-dec and gst-sh-mobile-sink. The gst-sh-mobile-sink is
  * a videosink element for SuperH.
  *
@@ -122,7 +123,7 @@ GST_STATIC_PAD_TEMPLATE ("sink",
  * - "height" (int). Height of the video output. Default: original height.
  * - "x" (int). X-coordinate of the video output. Default: 0.
  * - "y" (int). Y-coordinate of the video output. Default: 0.
- * - "zoom" (string). Zoom factor of the vido output. Possible values:
+ * - "zoom" (string). Zoom factor of the video output. Possible values:
  *   "orig"/"full"/"double"/"half". Default: "orig"
  */
 enum gstshvideosinkproperties
