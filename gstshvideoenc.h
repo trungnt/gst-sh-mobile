@@ -112,7 +112,7 @@ void gst_sh_video_enc_read_src_caps(GstshvideoEnc * shvideoenc);
 gboolean gst_sh_video_enc_set_src_caps(GstshvideoEnc * shvideoenc);
 
 /** Launches the encoder in an own thread
-		@param data encoder object
+* @param data encoder object
 */
 
 void* launch_encoder_thread(void *data);
