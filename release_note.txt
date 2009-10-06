@@ -15,37 +15,49 @@ Contents:
 
 == 1. Release Notes  ==
 
-Release date: Sun, 13 Sep 2009
+Release date: Sun, 4 Oct 2009
 
-Software version number: 1.2
+Software version number: 1.3
 
-Project milestone: 0.2
+Documentation version number: 0.1
+
+Project milestone: 0.3
 
 Released architectures: SuperH (SH7723, SH4)
 
-Released packages: gst-sh-mobile (1.2)
+Released packages: gst-sh-mobile (1.3)
 
 === 1.1. Major Changes  ===
 
 New Features and Fixes: 
 
-o Version numbering changed to continue the numbering started in the previous
-  project. 
+o Doxygen documentation of decoder and sink elements.
+o Encoder operation in stream mode.
+o Bug in upstream buffer allocation fixed.
 
 === 1.2. Notes  ===
 
-o This release was planned to include the fix in buffer handling which was 
-  provided by Conrad Parker. However this fix was actually released already in
-  the previous release. Thus, this is just a formal release to stay in line
-  with the project plan and schedule.
+o Documentation for decoder and sink elements can be generated using command:
+  doxygen doxygen.conf.
+o Previously encoder was encoding a fixed number of frames for every stream.
+  This was changed so that encoding will stop when GStreamer pipeline goes to
+  paused state.
+o Currently the elements support only NV12(YUV) color format. However the SuperH
+  architecture supports also several other color formats. Thus studies for
+  adding more supported color formats were made. The result was that none of the
+  other GStreamer color formats worked straight with the SuperH HW. The RGB
+  packing used in the GStreamer would require only some byte moving operations
+  so that might be more efficient than using color space conversion elements to
+  convert RGB to NV12. This possibility might be worth investigating in the
+  future if performace problems will raise up.
+o The video quality problem in H264 decoding that was reported in the previous
+  release not seems to be actually a problem in the video sample as it was
+  visible also when played with VLC player in PC.
 
 === 1.3. Known Issues  ===
 
-o Support for upstream buffer allocation done in the sink element is not working
-  currently. For some reason the parameter data gets corrupted when calling
-  the buffer allocation function.
-o A few blurry frames are visible during decoding of the H264 sample stream.
-  Changing the buffer size doesn't have much effect on this.
+o The encoder stream termination is currently implemented as a work around,
+  because SHCodecs doesn't support returning from the encoder loop yet.
 
 == 2. Results of the BAT Tests ==
 

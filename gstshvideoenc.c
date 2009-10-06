@@ -726,7 +726,6 @@ gst_sh_video_enc_init_encoder(GstshvideoEnc * shvideoenc)
 	shcodecs_encoder_set_ypic_size(shvideoenc->encoder,shvideoenc->height);
 
 	shcodecs_encoder_set_frame_no_increment(shvideoenc->encoder,1); 
-	shcodecs_encoder_set_frame_number_to_encode(shvideoenc->encoder,-1); 
 
 	GST_DEBUG_OBJECT(shvideoenc,"Encoder init: %ldx%ld %ldfps format:%ld",
 			 shcodecs_encoder_get_xpic_size(shvideoenc->encoder),
@@ -933,7 +932,7 @@ gst_sh_video_enc_loop (GstshvideoEnc *enc)
 	if(enc->buffer_yuv && enc->buffer_cbcr)
 	{
 		pthread_mutex_lock( &enc->cond_mutex );
-		pthread_cond_wait( &enc->thread_condition, &enc->cond_mutex );
+	        pthread_cond_wait( &enc->thread_condition, &enc->cond_mutex );
 		pthread_mutex_unlock( &enc->cond_mutex );
 	}
 
@@ -945,11 +944,13 @@ gst_sh_video_enc_loop (GstshvideoEnc *enc)
 	ret = gst_pad_pull_range (enc->sinkpad, enc->offset,
 			yuv_size, &enc->buffer_yuv);
 
+
 	if (ret != GST_FLOW_OK) 
 	{
 		GST_DEBUG_OBJECT (enc, "pull_range failed: %s", 
 				  gst_flow_get_name (ret));
 		gst_pad_pause_task (enc->sinkpad);
+		gst_pad_push_event(enc->srcpad,gst_event_new_eos ());
 		return;
 	}
 	else if(GST_BUFFER_SIZE(enc->buffer_yuv) != yuv_size)
@@ -970,6 +971,7 @@ gst_sh_video_enc_loop (GstshvideoEnc *enc)
 		GST_DEBUG_OBJECT (enc, "pull_range failed: %s", 
 				  gst_flow_get_name (ret));
 		gst_pad_pause_task (enc->sinkpad);
+		gst_pad_push_event(enc->srcpad,gst_event_new_eos ());
 		return;
 	}  
 	else if(GST_BUFFER_SIZE(tmp) != cbcr_size)
