@@ -556,7 +556,11 @@ gst_sh_video_enc_setcaps (GstPad * pad, GstCaps * caps)
 	GstshvideoEnc *enc = 
 		(GstshvideoEnc *) (GST_OBJECT_PARENT (pad));
 
-	enc->caps_set = FALSE;
+    if(enc->caps_set)
+	{
+		return TRUE;
+	}
+
 	ret = TRUE;
 
 	GST_LOG_OBJECT(enc,"%s called",__FUNCTION__);
@@ -675,10 +679,10 @@ gst_sh_video_enc_init_encoder(GstshvideoEnc * shvideoenc)
 				shvideoenc->ainfo.ctrl_file_name_buf,
 				&shvideoenc->ainfo,
 				&fmt);
-	if (ret < 0) 
-	{
-		GST_ELEMENT_ERROR((GstElement*)shvideoenc,CORE,FAILED,
-				  ("Error reading control file."), 
+		if (ret < 0) 
+		{
+			GST_ELEMENT_ERROR((GstElement*)shvideoenc,CORE,FAILED,
+				  ("Error reading the top of control file."), 
 				  (NULL));
 	}
 

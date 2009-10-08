@@ -895,8 +895,8 @@ gst_shcodecs_decoded_callback (SHCodecs_Decoder * decoder,
 	{
 		GST_LOG_OBJECT(dec,"Using GST buffer");  
 		ret = gst_pad_alloc_buffer(dec->srcpad,offset,y_size + c_size,
-					   gst_pad_get_caps(dec->srcpad),&buf);  
-		if (ret != GST_FLOW_OK) 
+					   gst_pad_get_caps(dec->srcpad),&buf);
+		if (ret != GST_FLOW_OK || GST_BUFFER_SIZE(buf) != y_size + c_size) 
 		{
 			GST_LOG_OBJECT(dec,"Src pad didn't allocate buffer");  
 			buf = gst_buffer_new_and_alloc(y_size+c_size);
