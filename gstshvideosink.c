@@ -53,7 +53,7 @@
  * automatically detects and connects the correct audio sink for playback. This
  * audio pipeline composition is very common in GStreamer programming.
  * 
- * The video pipeline is constructed from SuperH specific elements;
+ * The video pipeline is constructed from SuperH specific elements:
  * gst-sh-mobile-dec and gst-sh-mobile-sink. The gst-sh-mobile-sink is
  * a videosink element for SuperH.
  *
@@ -153,35 +153,35 @@ static GstVideoSinkClass *parent_class = NULL;
 
 /** 
  * Initialize SH hardware video sink
- * @param klass Gstreamer element class
+ * \param klass Gstreamer element class
  */
 static void gst_sh_video_sink_base_init (gpointer klass);
 
 /** 
  * Dispose sink
- * @param object Gstreamer element class
+ * \param object Gstreamer element class
  */
 static void gst_sh_video_sink_dispose (GObject * object);
 
 /** 
  * Initialize the class
- * @param klass Gstreamer SH video sink class
+ * \param klass Gstreamer SH video sink class
  */
 static void gst_sh_video_sink_class_init (GstSHVideoSinkClass * klass);
 
 /** 
  * Initialize the sink
- * @param sink Gstreamer SH sink element
- * @param gklass Gstreamer SH video sink class
+ * \param sink Gstreamer SH sink element
+ * \param gklass Gstreamer SH video sink class
  */
 static void gst_sh_video_sink_init (GstSHVideoSink * sink, GstSHVideoSinkClass * gklass);
 
 /** 
  * The function will set the properties of the sink
- * @param object The object where to get Gstreamer SH video Sink object
- * @param prop_id The property id
- * @param value The value of the prioperty
- * @param pspec not used in fuction
+ * \param object The object where to get Gstreamer SH video Sink object
+ * \param prop_id The property id
+ * \param value The value of the prioperty
+ * \param pspec not used in fuction
  */
 static void gst_sh_video_sink_set_property (GObject *object, 
 					  guint prop_id, const GValue *value, 
@@ -189,10 +189,10 @@ static void gst_sh_video_sink_set_property (GObject *object,
 
 /** 
  * The function will return the wanted property of the sink
- * @param object The object where to get Gstreamer SH video Sink object
- * @param prop_id The property id
- * @param value The value of the property
- * @param pspec not used in fuction
+ * \param object The object where to get Gstreamer SH video Sink object
+ * \param prop_id The property id
+ * \param value The value of the property
+ * \param pspec not used in fuction
  */
 static void gst_sh_video_sink_get_property (GObject * object, guint prop_id,
 					  GValue * value, GParamSpec * pspec);
@@ -200,50 +200,69 @@ static void gst_sh_video_sink_get_property (GObject * object, guint prop_id,
 /**
  * From GstBaseSink. All non stream depending resources are allocated
  * here.
- * \var bsink GstBaseSink element
+ * \param bsink GstBaseSink element
+ * \return true if no errors
  */
 static gboolean gst_sh_video_sink_start (GstBaseSink *bsink);
 
 /**
  * From GstBaseSink. All non stream depending resources are released
  * here.
- * \var bsink GstBaseSink element
+ * \param bsink GstBaseSink element
+ * \return true if no errors
  */
 static gboolean gst_sh_video_sink_stop (GstBaseSink *sink);
 
 /**
  * Returns the caps fron sink template.
- * \var bsink GstBaseSink element
+ * \param bsink GstBaseSink element
+ * \return the caps
  */
 static GstCaps* gst_sh_video_sink_getcaps (GstBaseSink * bsink);
 
 /** 
  * Initialize the sink pad 
- * @param bsink Gstreamer BaseSink object
- * @param caps The capabilities of the video to play
- * @return returns true if the video capatilies are supported and the video can be played
+ * \param bsink Gstreamer BaseSink object
+ * \param caps The capabilities of the video to play
+ * \return returns true if the video capatilies are supported and the video can be played
  */
 static gboolean gst_sh_video_sink_setcaps (GstBaseSink * bsink, GstCaps * caps);
 
 /**
  * From GstBaseSink. Here we can control when frames are played.
- * \var bsink GstBaseSink element
- * \var buf The next buffer to be displayed
- * \var start Starting time of the frame will be returned here.
- * \var end Ending time of the frame will be returned here.
+ * \param bsink GstBaseSink element
+ * \param buf The next buffer to be displayed
+ * \param start Starting time of the frame will be returned here.
+ * \param end Ending time of the frame will be returned here.
  */
 static void gst_sh_video_sink_get_times (GstBaseSink * bsink, GstBuffer * buf,
 				       GstClockTime * start, 
 				       GstClockTime * end);
 
+/**
+ * From GstBaseSink. Called when it is time to display a new frame.
+ * \param bsink GstBaseSink element
+ * \param buf The frame to be displayed
+ * \return Returns GST_FLOW_OK if frame was shown. Otherwise GST_FLOW_ERROR
+ */
 static GstFlowReturn gst_sh_video_sink_show_frame (GstBaseSink * bsink, 
-						 GstBuffer * buf);
+						   GstBuffer * buf);
 
-/* BUG: Commented out because of a possible bug in GStreamer
-static GstFlowReturn 
-gst_sh_video_sink_buffer_alloc (GstBaseSink *bsink, guint64 offset, guint size,
-										 GstCaps *caps, GstBuffer **buf);
-*/
+/**
+ * From GstBaseSink. Allows upstream buffer allocation. Here this is used to
+ * allocate memory from VEU memory, which saves one memcpy call.
+ * \param bsink GstBaseSink element
+ * \param offset Offset of the buffer
+ * \param size Size of the buffer
+ * \param caps Caps for the buffer. This could be used for upstream caps
+ *             negotiation.
+ * \param buf The allocated buffer is returned using this pointer
+ * \return Returns GST_FLOW_OK if frame was shown. Otherwise GST_FLOW_ERROR
+ */
+static GstFlowReturn gst_sh_video_sink_buffer_alloc (GstBaseSink *bsink, 
+						     guint64 offset, guint size,
+						     GstCaps *caps, GstBuffer **buf);
+
 
 
 
@@ -361,8 +380,7 @@ gst_sh_video_sink_class_init (GstSHVideoSinkClass * klass)
 	gstbasesink_class->start = GST_DEBUG_FUNCPTR (gst_sh_video_sink_start);
 	gstbasesink_class->stop = GST_DEBUG_FUNCPTR (gst_sh_video_sink_stop);
 
-	// Commented out because of a bug
-	//  gstbasesink_class->buffer_alloc = GST_DEBUG_FUNCPTR (gst_sh_video_sink_buffer_alloc);
+	gstbasesink_class->buffer_alloc = GST_DEBUG_FUNCPTR (gst_sh_video_sink_buffer_alloc);
 }
 
 static void
@@ -753,21 +771,26 @@ gst_sh_video_sink_show_frame (GstBaseSink * bsink, GstBuffer * buf)
 	return GST_FLOW_OK;
 }
 
-/*
+
 static GstFlowReturn 
 gst_sh_video_sink_buffer_alloc (GstBaseSink *bsink, guint64 offset, guint size,
-										 GstCaps *caps, GstBuffer **buf)
+				GstCaps *caps, GstBuffer **buf)
 {
-	// BUG: THERE IS SOMETHING WRONG IN HERE. offset and size get corrupted
 	GstStructure *structure = NULL;
 	GstSHVideoSink *sink = GST_SH_VIDEO_SINK (bsink);
 	gint width, height;
 
-	GST_LOG_OBJECT(sink,"Buffer requested. Offset: %d, size: %d",offset,size);
+	GST_LOG_OBJECT(sink,"Buffer requested. Offset: %lld, size: %d",offset,size);
 
 	if(size<=0)
 	{
 		GST_DEBUG_OBJECT(sink,"%s failed (no size for buffer)",__FUNCTION__);
+		return GST_FLOW_UNEXPECTED;
+	}  
+
+	if(size > sink->veu.mem.size)
+	{
+		GST_DEBUG_OBJECT(sink,"%s not enough space in VEU mem",__FUNCTION__);
 		return GST_FLOW_UNEXPECTED;
 	}  
 
@@ -782,14 +805,15 @@ gst_sh_video_sink_buffer_alloc (GstBaseSink *bsink, guint64 offset, guint size,
 
 	GST_LOG_OBJECT(sink,"Frame width: %d heigth: %d",width,height);
 
+        // Using HW buffer from VEU
 	*buf = (GstBuffer *) gst_mini_object_new (GST_TYPE_SH_VIDEO_BUFFER);
-	GST_BUFFER_DATA(buf) = GST_BUFFER_MALLOCDATA(buf) = sink->veu.mem.iomem;    
-	GST_BUFFER_SIZE(buf) = size;    
-	GST_SH_VIDEO_BUFFER_Y_DATA(buf) = (guint8*)sink->veu.mem.address; 
-	GST_SH_VIDEO_BUFFER_Y_SIZE(buf) = width*height; 
-	GST_SH_VIDEO_BUFFER_C_DATA(buf) = (guint8*)(sink->veu.mem.address+GST_SH_VIDEO_BUFFER_Y_SIZE(buf)); 
-	GST_SH_VIDEO_BUFFER_C_SIZE(buf) = GST_SH_VIDEO_BUFFER_Y_SIZE(buf)/2; 
+	GST_BUFFER_DATA(*buf) = GST_BUFFER_MALLOCDATA(*buf) = sink->veu.mem.iomem;    
+	GST_BUFFER_SIZE(*buf) = size;    
+	GST_SH_VIDEO_BUFFER_Y_DATA(*buf) = (guint8*)sink->veu.mem.address; 
+	GST_SH_VIDEO_BUFFER_Y_SIZE(*buf) = width*height; 
+	GST_SH_VIDEO_BUFFER_C_DATA(*buf) = (guint8*)(sink->veu.mem.address+GST_SH_VIDEO_BUFFER_Y_SIZE(*buf)); 
+	GST_SH_VIDEO_BUFFER_C_SIZE(*buf) = GST_SH_VIDEO_BUFFER_Y_SIZE(*buf)/2; 
 
 	return GST_FLOW_OK;
 }
-*/
+

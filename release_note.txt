@@ -39,17 +39,26 @@ o Bug in upstream buffer allocation fixed.
 
 o Documentation for decoder and sink elements can be generated using command:
   doxygen doxygen.conf.
+
 o Previously encoder was encoding a fixed number of frames for every stream.
   This was changed so that encoding will stop when GStreamer pipeline goes to
   paused state.
-o Currently the elements support only NV12(YUV) color format. However the SuperH
-  architecture supports also several other color formats. Thus studies for
-  adding more supported color formats were made. The result was that none of the
-  other GStreamer color formats worked straight with the SuperH HW. The RGB
-  packing used in the GStreamer would require only some byte moving operations
-  so that might be more efficient than using color space conversion elements to
-  convert RGB to NV12. This possibility might be worth investigating in the
-  future if performace problems will raise up.
+
+o Currently the elements support only NV12(YUV 4:2:0) color format. However the 
+  SuperH architecture supports also several other color formats and the usability
+  of our elements for 3rd party developers would increase a lot if more color
+  formats were supported. Thus studies for adding more supported color formats
+  were made. The result was that none of the other GStreamer color formats worked
+  straight with the SuperH HW. The RGB packing used in the GStreamer would require
+  only some byte moving operations (see below) so that might be more efficient
+  than using color space conversion elements to convert RGB to NV12. This 
+  possibility might be worth investigating in the future.
+
+  GStreamer RGB pack:
+  GGGB BBBB RRRR RGGG
+  SuperH RGB pack:
+  RRRR RGGG GGGB BBBB
+
 o The video quality problem in H264 decoding that was reported in the previous
   release not seems to be actually a problem in the video sample as it was
   visible also when played with VLC player in PC.
