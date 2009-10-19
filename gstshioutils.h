@@ -126,4 +126,7 @@ gboolean setup_veu(uio_module *veu, gint src_w, gint src_h, gint dst_w, gint dst
  */
 gboolean veu_blit(uio_module *veu, gulong y_addr, gulong c_addr);
 
+void veu_wait_irq(uio_module *veu);
+
+
 #endif // GSTSHIOUTILS_H

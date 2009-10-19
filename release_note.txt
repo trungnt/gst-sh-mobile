@@ -15,53 +15,34 @@ Contents:
 
 == 1. Release Notes  ==
 
-Release date: Sun, 4 Oct 2009
+Release date: Mon, 19 Oct 2009
 
-Software version number: 1.3
+Software version number: 1.4
 
-Documentation version number: 0.1
-
-Project milestone: 0.3
+Documentation version number: 0.2
 
 Released architectures: SuperH (SH7723, SH4)
 
-Released packages: gst-sh-mobile (1.3)
+Released packages: gst-sh-mobile (1.4)
 
 === 1.1. Major Changes  ===
 
 New Features and Fixes: 
 
-o Doxygen documentation of decoder and sink elements.
-o Encoder operation in stream mode.
-o Bug in upstream buffer allocation fixed.
+o Doxygen documentation of encoder element.
+o Encoder settings available as properties.
 
 === 1.2. Notes  ===
 
-o Documentation for decoder and sink elements can be generated using command:
-  doxygen doxygen.conf.
+o Documentation for encoder, decoder and sink elements can be generated using 
+  command: doxygen doxygen.conf.
 
-o Previously encoder was encoding a fixed number of frames for every stream.
-  This was changed so that encoding will stop when GStreamer pipeline goes to
-  paused state.
-
-o Currently the elements support only NV12(YUV 4:2:0) color format. However the 
-  SuperH architecture supports also several other color formats and the usability
-  of our elements for 3rd party developers would increase a lot if more color
-  formats were supported. Thus studies for adding more supported color formats
-  were made. The result was that none of the other GStreamer color formats worked
-  straight with the SuperH HW. The RGB packing used in the GStreamer would require
-  only some byte moving operations (see below) so that might be more efficient
-  than using color space conversion elements to convert RGB to NV12. This 
-  possibility might be worth investigating in the future.
-
-  GStreamer RGB pack:
-  GGGB BBBB RRRR RGGG
-  SuperH RGB pack:
-  RRRR RGGG GGGB BBBB
-
-o The video quality problem in H264 decoding that was reported in the previous
-  release not seems to be actually a problem in the video sample as it was
-  visible also when played with VLC player in PC.
+o Previously encoder settings had to be given using a control file. Now all the
+  same settings can be given using the property mechanism. Also each of the 
+  properties have sensible default values, so the normally the user doesn't have
+  to worry about them. The only exceptions are: stream type, width, height and
+  frame rate. These must be set if not available in the caps of the stream.
+  The possibility of using a control file is also still available.
 
 === 1.3. Known Issues  ===
 
