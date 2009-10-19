@@ -417,13 +417,12 @@ veu_blit(uio_module *veu, gulong y_addr, gulong c_addr)
 	return TRUE;
 }
 
-/* Might be used later
-void veu_wait_irq(vidix_playback_t *info)
+
+void veu_wait_irq(uio_module *veu)
 {
 		unsigned long n_pending;
 
-		read(uio_dev.fd, &n_pending, sizeof(unsigned long));
+		read(veu->dev.fd, &n_pending, sizeof(unsigned long));
 
-		write_reg(&uio_mmio, 0x100, VEVTR);
+		write_reg(&veu->mmio, 0x100, VEVTR);
 }
-*/

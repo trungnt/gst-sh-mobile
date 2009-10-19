@@ -259,6 +259,7 @@ static GstFlowReturn gst_sh_video_sink_show_frame (GstBaseSink * bsink,
  * \param buf The allocated buffer is returned using this pointer
  * \return Returns GST_FLOW_OK if frame was shown. Otherwise GST_FLOW_ERROR
  */
+
 static GstFlowReturn gst_sh_video_sink_buffer_alloc (GstBaseSink *bsink, 
 						     guint64 offset, guint size,
 						     GstCaps *caps, GstBuffer **buf);
@@ -768,6 +769,8 @@ gst_sh_video_sink_show_frame (GstBaseSink * bsink, GstBuffer * buf)
 			(sink->video_sink.width*sink->video_sink.height));
 	}
 
+    veu_wait_irq(&sink->veu);    
+
 	return GST_FLOW_OK;
 }
 
@@ -816,4 +819,3 @@ gst_sh_video_sink_buffer_alloc (GstBaseSink *bsink, guint64 offset, guint size,
 
 	return GST_FLOW_OK;
 }
-
