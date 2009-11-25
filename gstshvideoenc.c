@@ -1327,7 +1327,8 @@ gst_sh_video_enc_init(GstSHVideoEnc * enc,
 	enc->fps_denominator = 0;
 	enc->frame_number = 0;
 
-	enc->stream_paused = FALSE;
+	enc->stream_stopped = FALSE;
+	enc->eos = FALSE;
 
 	/* PROPERTIES */
 	/* common */
@@ -2517,6 +2518,11 @@ gst_sh_video_enc_sink_event(GstPad * pad, GstEvent * event)
 
 	GST_LOG_OBJECT(enc, "%s called", __FUNCTION__);
 
+	if (GST_EVENT_TYPE (event) == GST_EVENT_EOS) 
+	{
+		enc->eos = TRUE;
+	}
+
 	return gst_pad_push_event(enc->srcpad, event);
 }
 
@@ -2802,18 +2808,10 @@ gst_sh_video_enc_change_state(GstElement *element, GstStateChange transition)
 
 	switch (transition) 
 	{
-		case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+		case GST_STATE_CHANGE_PAUSED_TO_READY:
 		{
 			GST_DEBUG_OBJECT(enc, "Stopping encoding.");
-			pthread_mutex_lock(&enc->mutex);
-			enc->stream_paused = TRUE;        
-			pthread_mutex_unlock(&enc->mutex);
-			//This doesn't work until shcodecs implements returning
-			//from encoding when input/output callback returns 1
-			//pthread_join(enc->enc_thread, NULL);
-			//GST_DEBUG_OBJECT(enc, "Encoder thread returned");
-			pthread_cancel(enc->enc_thread);
-			GST_DEBUG_OBJECT(enc, "%d frames encoded.", enc->frame_number);
+			enc->stream_stopped = TRUE;        
 			break;
 		}
 		default:
@@ -2830,7 +2828,7 @@ gst_sh_video_enc_chain(GstPad * pad, GstBuffer * buffer)
 
 	GST_LOG_OBJECT(enc, "%s called", __FUNCTION__);
 
-	if (enc->stream_paused)
+	if (enc->stream_stopped)
 	{
 		return GST_FLOW_UNEXPECTED;
 	}
@@ -2869,6 +2867,7 @@ gst_sh_video_enc_chain(GstPad * pad, GstBuffer * buffer)
 	{
 		GST_DEBUG_OBJECT(enc, "Not enough data");
 		// If we can't continue we can issue EOS
+		enc->eos = TRUE;
 		gst_pad_push_event(enc->srcpad, gst_event_new_eos());
 		return GST_FLOW_OK;
 	}  
@@ -2964,6 +2963,7 @@ gst_sh_video_enc_loop(GstSHVideoEnc *enc)
 	{
 		GST_DEBUG_OBJECT(enc, "pull_range failed: %s", gst_flow_get_name(ret));
 		gst_pad_pause_task(enc->sinkpad);
+		enc->eos = TRUE;
 		gst_pad_push_event(enc->srcpad, gst_event_new_eos());
 		return;
 	}
@@ -2971,6 +2971,7 @@ gst_sh_video_enc_loop(GstSHVideoEnc *enc)
 	{
 		GST_DEBUG_OBJECT(enc, "Not enough data");
 		gst_pad_pause_task(enc->sinkpad);
+		enc->eos = TRUE;
 		gst_pad_push_event(enc->srcpad, gst_event_new_eos());
 		return;
 	}  
@@ -2983,6 +2984,7 @@ gst_sh_video_enc_loop(GstSHVideoEnc *enc)
 	{
 		GST_DEBUG_OBJECT(enc, "pull_range failed: %s", gst_flow_get_name(ret));
 		gst_pad_pause_task(enc->sinkpad);
+		enc->eos = TRUE;
 		gst_pad_push_event(enc->srcpad, gst_event_new_eos());
 		return;
 	}  
@@ -2990,6 +2992,7 @@ gst_sh_video_enc_loop(GstSHVideoEnc *enc)
 	{
 		GST_DEBUG_OBJECT(enc, "Not enough data");
 		gst_pad_pause_task(enc->sinkpad);
+		enc->eos = TRUE;
 		gst_pad_push_event(enc->srcpad, gst_event_new_eos());
 		return;
 	}  
@@ -3020,6 +3023,7 @@ gst_sh_video_launch_encoder_thread(void *data)
 	ret = shcodecs_encoder_run(enc->encoder);
 
 	GST_DEBUG_OBJECT(enc, "shcodecs_encoder_run returned %d\n", ret);
+	GST_DEBUG_OBJECT(enc, "%d frames encoded.", enc->frame_number);
 
 	// We can stop waiting if encoding has ended
 	pthread_mutex_lock(&enc->cond_mutex);
@@ -3028,7 +3032,11 @@ gst_sh_video_launch_encoder_thread(void *data)
 
 	// Calling stop task won't do any harm if we are in push mode
 	gst_pad_stop_task(enc->sinkpad);
-	gst_pad_push_event(enc->srcpad, gst_event_new_eos());
+	if(!enc->eos)
+	{
+		enc->eos = TRUE;
+		gst_pad_push_event(enc->srcpad, gst_event_new_eos());
+    }
 
 	return NULL;
 }
@@ -3043,7 +3051,8 @@ gst_sh_video_enc_get_input(SHCodecs_Encoder * encoder, void *user_data)
 
 	// Lock mutex while reading the buffer  
 	pthread_mutex_lock(&enc->mutex); 
-	if (enc->stream_paused)
+
+	if (enc->stream_stopped || enc->eos)
 	{
 		GST_DEBUG_OBJECT(enc, "Encoding stop requested, returning 1");
 		ret = 1;
@@ -3077,16 +3086,17 @@ gst_sh_video_enc_write_output(SHCodecs_Encoder * encoder,
 	GstBuffer* buf = NULL;
 	gint ret = 0;
 
-	GST_LOG_OBJECT(enc, "%s called. Got %d bytes data\n", __FUNCTION__, length);
+	GST_LOG_OBJECT(enc, "%s called. Got %d bytes data frame number: %d\n", 
+				   __FUNCTION__, length, enc->frame_number);
 
 	pthread_mutex_lock(&enc->mutex); 
-	if (enc->stream_paused)
+
+	if (enc->stream_stopped)
 	{
 		GST_DEBUG_OBJECT(enc, "Encoding stop requested, returning 1");
 		ret = 1;
 	}
-
-	if (length)
+	else if (length)
 	{
 		buf = gst_buffer_new();
 		gst_buffer_set_data(buf, data, length);
@@ -3097,9 +3107,7 @@ gst_sh_video_enc_write_output(SHCodecs_Encoder * encoder,
 		GST_BUFFER_OFFSET(buf) = enc->frame_number; 
 		enc->frame_number++;
 
-		ret = gst_pad_push(enc->srcpad, buf);
-
-		if (ret != GST_FLOW_OK) 
+		if (gst_pad_push(enc->srcpad, buf) != GST_FLOW_OK) 
 		{
 			GST_DEBUG_OBJECT(enc, "pad_push failed: %s", 
 								gst_flow_get_name(ret));

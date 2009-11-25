@@ -236,7 +236,7 @@ gboolean init_veu(uio_module *veu)
 	{
 		return FALSE;
 	}
-	
+
 	write_reg(&veu->mmio, 0x100, VBSRR); /* reset VEU */
 
 	return TRUE;

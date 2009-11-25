@@ -69,14 +69,15 @@ struct _GstSHVideoEnc
 	glong frame_number;
 	GstClockTime timestamp_offset;
 
-	gboolean stream_paused;
+	gboolean stream_stopped;
+	gboolean eos;
 
 	pthread_t enc_thread;
 	pthread_mutex_t mutex;
 	pthread_mutex_t cond_mutex;
 	pthread_cond_t  thread_condition;
 
-        /* PROPERTIES */
+	/* PROPERTIES */
 	/* common */
 	glong bitrate;
 	glong i_vop_interval;
